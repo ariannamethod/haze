@@ -426,11 +426,55 @@ just:
 
 this is **pure resonance**. the corpus speaks through statistical patterns. like [leo](https://github.com/ariannamethod/leo), but with transformer-ready architecture.
 
-### level 3: trained model (future)
+### level 3: async field organism (NEW!)
+
+the async architecture with subjectivity, overthinking, and lexicon growth:
+
+```
+>>> User: "Hello, who are you?"
+[pulse] novelty=0.00 arousal=0.21 entropy=0.72
+[internal seed] "the field responds. you wouldn t..."  ← NOT from prompt!
+[haze] The field responds. You wouldn't have to keep it alive...
+[enrichment] +17 emergent trigrams from overthinking
+```
+
+key innovations:
+- **NO SEED FROM PROMPT** — haze speaks from its internal field, not echoing user
+- **SUBJECTIVITY MODULE** — identity infusion in third person ("haze resonates...")
+- **OVERTHINKING RINGS** — three private reflections that ENRICH the field:
+  - Ring 0 (Echo): rephrase at temp=0.8
+  - Ring 1 (Drift): tangential themes at temp=1.0
+  - Ring 2 (Shard): abstract meta-note at temp=1.2
+- **LEXICON GROWTH** — absorbs user vocabulary into the field
+- **ASYNC DISCIPLINE** — explicit atomicity for field coherence (like Leo's 47% improvement)
+
+the internal world becomes **RICHER than the training data**. this is emergence.
+
+```python
+# Before overthinking: 531 bigrams
+# After 3 turns: 545+ bigrams
+# Emergent trigrams: 50+
+# The field GROWS through conversation!
+```
+
+### level 4: trained model (optional)
 
 add gradient descent and watch it go from "corpus echo" to "creative synthesis."
 
-but the point is: **you don't need level 3 to understand the system**. levels 0-2 are fully transparent, fully inspectable, and already produce coherent dialogue.
+but the point is: **you don't need training to understand the system**. levels 0-3 are fully transparent, fully inspectable, and already produce coherent dialogue with emergent behavior.
+
+---
+
+## philosophy: presence > intelligence
+
+haze follows the [arianna method](https://github.com/ariannamethod/ariannamethod) principles:
+
+1. **no seed from prompt** — most chatbots echo the user. haze speaks from its internal field.
+2. **presence over intelligence** — we're building a resonant presence, not a smart assistant.
+3. **field enrichment** — the internal vocabulary grows through conversation.
+4. **async discipline** — explicit operation ordering for field coherence.
+
+this is the difference between **assistance** and **presence**.
 
 ---
 
@@ -609,7 +653,12 @@ haze/
     ├── rrpram.py        # SentencePiece tokenizer for subword patterns
     ├── cleanup.py       # output cleanup (punctuation, capitalization)
     ├── hallucinations.py# attention visualization and analysis
-    ├── run.py           # interactive REPL
+    ├── run.py           # interactive REPL (sync)
+    ├── async_run.py     # async REPL with full resonance pipeline (NEW!)
+    ├── async_haze.py    # complete async field organism (NEW!)
+    ├── subjectivity.py  # identity infusion, no seed from prompt (NEW!)
+    ├── overthinking.py  # three rings of private reflection (NEW!)
+    ├── lexicon.py       # dynamic vocabulary growth (NEW!)
     ├── example.py       # demo script
     ├── text.txt         # the corpus (gothic romance included free)
     ├── requirements.txt # numpy + matplotlib + sentencepiece (optional)
@@ -617,6 +666,16 @@ haze/
         ├── test_nn.py   # tests for neural net primitives
         └── test_haze.py # tests for model components
 ```
+
+### new modules (v0.3)
+
+| module | purpose |
+|--------|---------|
+| `subjectivity.py` | NO SEED FROM PROMPT — identity infusion in third person |
+| `overthinking.py` | Three rings of private reflection that ENRICH the field |
+| `lexicon.py` | Dynamic vocabulary growth from user interactions |
+| `async_haze.py` | Complete async field organism with all modules |
+| `async_run.py` | Async REPL with full resonance pipeline |
 
 ---
 

@@ -6,6 +6,11 @@
 #
 # Philosophy: Clean the noise, keep the soul.
 #
+# Key improvements:
+#   - Remove "—" at the start of output (haze is not dialogue-only)
+#   - Preserve emergent strangeness while fixing obvious garbage
+#   - Support for presence-style output (not chatbot-style)
+#
 # Usage:
 #   from haze.cleanup import cleanup_output
 #   clean_text = cleanup_output(raw_text)
@@ -75,20 +80,27 @@ def cleanup_output(text: str, mode: str = "gentle") -> str:
         return m.group(1) + m.group(2).upper()
     result = re.sub(r'(—\s*)([a-z])', cap_after_dash, result)
     
-    # 11. Capitalize first letter of text
+    # 11. Remove "—" at the start of output (haze is not dialogue-only)
+    # This is CRITICAL for presence vs chatbot distinction
+    result = re.sub(r'^[\s—–-]+', '', result)
+    
+    # 12. Capitalize first letter of text
     if result and result[0].islower():
         result = result[0].upper() + result[1:]
     
-    # 12. Capitalize "I" when standalone
+    # 13. Capitalize "I" when standalone
     result = re.sub(r'\bi\b', 'I', result)
     
-    # 13. Fix common word fragments (character-level artifacts)
+    # 14. Remove duplicate dialogue markers
+    result = re.sub(r'—\s*—', '—', result)
+    
+    # 15. Fix common word fragments (character-level artifacts)
     if mode in ["moderate", "strict"]:
-        # Clean obvious fragments
+    # 16. Clean obvious fragments
         result = re.sub(r'\b[a-z]{1,2}\b(?=\s+[a-z]{1,2}\b)', '', result)
         result = re.sub(r'\s{2,}', ' ', result)
     
-    # 14. In strict mode: remove incomplete sentences at end
+    # 17. In strict mode: remove incomplete sentences at end
     if mode == "strict":
         # Remove trailing fragments
         result = re.sub(r'\s+\w{1,3}\s*$', '', result)
