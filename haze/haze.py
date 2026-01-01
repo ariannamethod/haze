@@ -71,9 +71,23 @@ class Vocab:
         stoi = {ch: i for i, ch in enumerate(chars)}
         itos = {i: ch for i, ch in enumerate(chars)}
         return cls(chars=chars, stoi=stoi, itos=itos, vocab_size=len(chars))
+    
+    @staticmethod
+    def _normalize_text(s: str) -> str:
+        """Normalize text to use corpus-compatible characters.
+        
+        The corpus uses fancy quotes: ' ' " " instead of ASCII ' "
+        This ensures encode() doesn't drop apostrophes.
+        """
+        # Normalize ASCII apostrophe (U+0027) to RIGHT SINGLE QUOTATION MARK (U+2019)
+        # which is what the corpus uses for contractions like "don't"
+        s = s.replace('\x27', '\u2019')  # ' → '
+        # Normalize ASCII double quote (U+0022) to RIGHT DOUBLE QUOTATION MARK (U+201D)
+        s = s.replace('\x22', '\u201d')  # " → "
+        return s
 
     def encode(self, s: str) -> List[int]:
-        s = s.lower()
+        s = self._normalize_text(s.lower())
         return [self.stoi[c] for c in s if c in self.stoi]
 
     def decode(self, idxs: List[int]) -> str:
