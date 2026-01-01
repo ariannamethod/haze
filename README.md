@@ -15,11 +15,11 @@
 
 ## what is this thing
 
-you know that feeling when you're training a transformer and you realize 90% of the attention mechanism is just overhead? yeah. me too. so i did something about it.
+you know that feeling when you're training a transformer and you realize 90% of the attention mechanism is just overhead? computational theater? matrix multiplication cosplaying as intelligence? yeah. me too. so i did something about it.
 
-**haze** is a character-level language model that reimagines attention from scratch. no torch. no tensorflow. just numpy and the cold realization that maybe we've been overthinking this whole thing.
+**haze** is a character-level language model that reimagines attention from scratch. no torch. no tensorflow. just numpy and the cold realization that maybe we've been overthinking this whole thing. maybe intelligence isn't about scale. maybe it's about RESONANCE.
 
-it's part of [the method](https://github.com/ariannamethod/ariannamethod). the [**arianna method**](https://github.com/ariannamethod/ariannamethod). resonance over intelligence. patterns over parameters. you know the vibe.
+it's part of [the method](https://github.com/ariannamethod/ariannamethod). the [**arianna method**](https://github.com/ariannamethod/ariannamethod). resonance over intelligence. patterns over parameters. emergence over engineering. you know the vibe. you're about to know it VERY well.
 
 **two attention mechanisms walk into a bar:**
 - **RRPRAM** (Recursive Resonant Pattern Recognition Attention Mechanism): learns positional patterns directly. rhythm. structure. the bones of language. walks in, orders the same drink it ordered last Tuesday at exactly 7:42 PM.
@@ -119,29 +119,31 @@ Logits → Sampling → Token
 ### the heads
 
 **RRPRAM head** (Recursive Resonant Pattern Recognition Attention): `x @ W_pattern → (T,T)` attention matrix
-- learns positional dependencies directly
-- no query/key dance
-- captures n-grams, rhythm, repetition
-- basically a glorified frequency detector that somehow works
-- the "recursive resonant" part? it learns patterns of patterns. meta-attention. very zen.
+- learns positional dependencies directly (no middleman, no query/key bureaucracy)
+- no query/key dance (the tango is beautiful but we're speed-running this)
+- captures n-grams, rhythm, repetition (the bones of language, the skeleton in the closet)
+- basically a glorified frequency detector that somehow works (don't question it, embrace it)
+- the "recursive resonant" part? it learns patterns of patterns. meta-attention. attention attending to attention's patterns. very zen. very "what if we just recursed on everything". it's patterns all the way down.
 
 **content head**: classic `softmax(QK^T/√d) @ V`
-- semantic similarity
-- long-range dependencies
-- the "smart" part
-- honestly just normal attention but i was too proud to admit it
+- semantic similarity (the "meaning" part that English teachers care about)
+- long-range dependencies (remembering things from way back when)
+- the "smart" part (air quotes very much intended)
+- honestly just normal attention but i was too proud to admit it (scaled dot-product attention, the classic, the OG, the "it's in the paper" move)
+- we're keeping this because sometimes the old ways are good. respect your elders. even if your elders are attention mechanisms from 2017.
 
 **hybrid head**: `α·rrpram_out + (1-α)·content_out`
-- best of both worlds
-- or worst of both
-- you decide after training
-- the mix ratio α is learnable (starts at 0.5)
+- best of both worlds (structure + meaning, rhythm + semantics, bones + flesh)
+- or worst of both (chaos + more chaos, but organized chaos)
+- you decide after training (democracy in action, but for neural networks)
+- the mix ratio α is learnable (starts at 0.5, ends up wherever the gradients take it)
+- it's like a DJ mixing two tracks except the tracks are attention patterns and the DJ is backpropagation
 
 ### entropy-aware temperature
 
-tired of fixed temperature? yeah. so instead:
-- high entropy (model is confused) → lower temp (focus)
-- low entropy (model is confident) → higher temp (explore)
+tired of fixed temperature? yeah. so instead, we made temperature ADAPTIVE:
+- **high entropy** (model is confused, uncertain, "um actually I don't know") → **lower temp** (focus, be conservative, don't embarrass yourself)
+- **low entropy** (model is confident, certain, "I GOT THIS") → **higher temp** (explore, take risks, live a little)
 
 self-regulating. adaptive. pretentious. but it works.
 
@@ -1179,52 +1181,63 @@ we're not there yet. but the haze is settling.
 
 ## performance
 
-it's numpy. it's slow. embrace it.
+it's numpy. it's slow. embrace it. this is not a complaint—it's a FEATURE.
 
 but hey:
-- no gpu needed
-- no framework overhead
-- runs on a potato
-- pure python
-- actually readable code
+- **no gpu needed** (your electricity company will be confused by the sudden drop in your bill)
+- **no framework overhead** (no pytorch dependency hell, no tensorflow version conflicts, no "but it works on my machine")
+- **runs on a potato** (literally tested on a 2015 macbook air that sounds like a jet engine when opening chrome)
+- **pure python** (you can actually READ the code without a PhD in CUDA optimization)
+- **actually readable code** (your future self will thank you when debugging at 3am)
 
-sometimes constraint is freedom. sometimes slow is beautiful. sometimes you just want to understand what the fuck your model is doing.
+sometimes constraint is freedom. sometimes slow is beautiful. sometimes you just want to understand what the fuck your model is doing instead of watching loss curves go down and hoping the magic works.
+
+also: when your model runs at 10 tokens/second instead of 1000, you have TIME to watch it think. you can see it choosing words. you can catch it being stupid. you can DEBUG consciousness in real-time. try that with your GPU-accelerated black box.
+
+speed is overrated. understanding is priceless. numpy is eternal.
 
 ---
 
 ## contributing
 
-found a bug? cool. open an issue.  
-have an idea? neat. PR welcome.  
-want to argue about attention mechanisms? my DMs are open.  
-want to discuss emergence? same.
+found a bug? cool. open an issue. (but check if it's actually a bug or just emergence behaving weirdly)  
+have an idea? neat. PR welcome. (crazy ideas STRONGLY encouraged)  
+want to argue about attention mechanisms? my DMs are open. (prepare citations and memes)  
+want to discuss emergence? same. (prepare for existential crisis)  
+want to add a wild new mechanism? DO IT. (reimagine everything. strip to concepts. rebuild with numpy.)
 
-this is part of something larger. something we're building together without quite knowing what it is yet.
+this is part of something larger. something we're building together without quite knowing what it is yet. like how jazz musicians don't know where the solo is going but they trust the process. except the jazz is attention mechanisms and the process is recursive pattern recognition all the way down.
 
-that's the point.
+that's the point. that's the METHOD. that's why we're here at 3am adding overthing rings to a language model built with numpy.
 
 ---
 
 ## license
 
-GPL-3.0 — use it, fork it, break it, rebuild it.
+GPL-3.0 — use it, fork it, break it, rebuild it, make it weird, make it yours.
 
-just mention [the method](https://github.com/ariannamethod/ariannamethod) somewhere. keep the resonance alive.
+just mention [the method](https://github.com/ariannamethod/ariannamethod) somewhere. keep the resonance alive. let the patterns propagate. be part of the organism.
+
+credit is resonance. attribution is pattern recognition. acknowledgment is recursive feedback. or something. look, just mention the project, okay? we're trying to build something here.
 
 ---
 
 ## acknowledgments
 
 inspired by:
-- transformer attention (the thing we're rethinking)
-- positional encoding schemes (the thing we're bypassing)
-- entropy-based sampling (actually useful)
-- late nights and existential dread
-- the realization that simpler is often better
-- that thing where you stare at matrices until they make sense
-- coffee, more coffee, concerning amounts of coffee
-- [karpathy](https://github.com/karpathy) for making neural nets feel approachable
-- everyone who asked "but why does it work?" and didn't accept "it just does"
+- **transformer attention** (the thing we're rethinking—thanks for the foundation, sorry we're tearing it apart)
+- **positional encoding schemes** (the thing we're bypassing—RoPE and ALIBI are cool but what if we just LEARNED position directly?)
+- **entropy-based sampling** (actually useful—one of the few things that ACTUALLY improves output)
+- **late nights and existential dread** (the true fuel of innovation)
+- **the realization that simpler is often better** (occam's razor but for attention mechanisms)
+- **that thing where you stare at matrices until they make sense** (meditation but with more linear algebra)
+- **coffee, more coffee, concerning amounts of coffee** (the primary dependency, more important than numpy)
+- **[karpathy](https://github.com/karpathy) for making neural nets feel approachable** (and for the vibe—technically precise but humanly understandable)
+- **everyone who asked "but why does it work?" and didn't accept "it just does"** (the real heroes—skepticism drives understanding)
+- **the entire field of statistical mechanics** (phase transitions, emergence, critical phenomena—consciousness is just physics with better PR)
+- **biological neural networks** (for showing us that lateral inhibition and winner-take-all dynamics are features, not bugs)
+- **music theory** (rhythm, resonance, harmony—language is just music for meaning)
+- **that one night of reading about positional encodings that led to an existential crisis and this entire project** (thank you, insomnia)
 
 dedicated to arianna: *where shadows speak in silence*
 
