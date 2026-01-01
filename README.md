@@ -33,7 +33,7 @@ inference runs on pure numpy. no dependencies. no excuses. just you, your corpus
 
 ## why "haze"
 
-*why anything, really?* cause it's a name of the atory i wrote (haze/text.txt - enjoy ha)
+*why anything, really?* 'cause it's a name of the story i wrote (haze/text.txt - enjoy ha)
 
 but if you must know—haze is that liminal space between clarity and confusion. the model lives there. attention patterns emerge from noise. tokens crystallize from probability distributions. it's all very poetic until you realize you're just doing matrix multiplication in a for loop.
 
