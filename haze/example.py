@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 import numpy as np
-from reweight_gpt_numpy import Vocab, ReweightGPT
+from model import Vocab, ReweightGPT as Haze
 
 # ----------------- corpus -----------------
 
@@ -38,7 +38,7 @@ def main():
     vocab = Vocab.from_text(DEMO_TEXT)
     print(f"[vocab] {vocab.vocab_size} unique characters")
 
-    model = ReweightGPT(
+    model = Haze(
         vocab_size=vocab.vocab_size,
         T=32,
         n_emb=64,
@@ -89,7 +89,7 @@ def main():
     print()
 
     for head_type in ["reweight", "content", "hybrid"]:
-        model_test = ReweightGPT(
+        model_test = Haze(
             vocab_size=vocab.vocab_size,
             T=32,
             n_emb=64,

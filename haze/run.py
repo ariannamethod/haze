@@ -17,9 +17,9 @@ import sys
 import argparse
 from pathlib import Path
 
-from reweight_gpt_numpy import (
+from model import (
     Vocab,
-    ReweightGPT,
+    ReweightGPT as Haze,
     load_corpus,
     build_model_from_text,
 )
@@ -29,7 +29,7 @@ from reweight_gpt_numpy import (
 
 
 DEFAULT_CORPUS = Path("text.txt")
-DEFAULT_WEIGHTS = Path("reweight_gpt_weights.npz")
+DEFAULT_WEIGHTS = Path("theweightofhaze.npz")
 
 DEFAULT_CONFIG = {
     "T": 32,
@@ -265,8 +265,8 @@ def main():
 
     # load or init model
     if args.weights.exists():
-        print(f"[model] loading weights from {args.weights}")
-        model = ReweightGPT.from_npz(vocab_size=vocab.vocab_size, path=args.weights)
+        print(f"[model] loading the weight of haze from {args.weights}")
+        model = Haze.theweightofhaze(vocab_size=vocab.vocab_size, path=args.weights)
         print(f"[model] T={model.T}, n_emb={model.n_emb}, blocks={model.n_blocks}, heads={model.n_heads}")
     else:
         print(f"[model] no weights found, random init with head_type={args.head_type}")

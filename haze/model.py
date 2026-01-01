@@ -1,4 +1,4 @@
-# reweight_gpt_numpy.py — Reweight-GPT with Hybrid Attention (NumPy inference)
+# model.py — Reweight-GPT with Hybrid Attention (NumPy inference)
 #
 # Architecture:
 #   - HybridHead = ReweightHead (positional) + ContentHead (semantic)
@@ -14,20 +14,42 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Literal
 
-from mini_nn import (
-    get_rng,
-    init_weight,
-    softmax,
-    gelu,
-    layer_norm,
-    rms_norm,
-    sample_basic,
-    sample_top_k,
-    sample_top_p,
-    entropy_temperature,
-    entropy_bits,
-    confidence_score,
-)
+try:
+    from .nn import (
+        get_rng,
+        init_weight,
+        softmax,
+        gelu,
+        layer_norm,
+        rms_norm,
+        sample_basic,
+        sample_top_k,
+        sample_top_p,
+        sample_mirostat,
+        sample_mirostat_v2,
+        entropy_temperature,
+        resonance_temperature,
+        entropy_bits,
+        confidence_score,
+    )
+except ImportError:
+    from nn import (
+        get_rng,
+        init_weight,
+        softmax,
+        gelu,
+        layer_norm,
+        rms_norm,
+        sample_basic,
+        sample_top_k,
+        sample_top_p,
+        sample_mirostat,
+        sample_mirostat_v2,
+        entropy_temperature,
+        resonance_temperature,
+        entropy_bits,
+        confidence_score,
+    )
 
 
 # ----------------- vocab -----------------
@@ -327,12 +349,14 @@ class ReweightGPT:
         seed_seq: List[int],
         length: int = 200,
         temperature: float = 1.0,
-        sampling: Literal["basic", "top_k", "top_p", "entropy"] = "entropy",
+        sampling: Literal["basic", "top_k", "top_p", "entropy", "mirostat", "mirostat_v2", "resonance"] = "entropy",
         top_k: int = 40,
         top_p: float = 0.9,
         target_entropy: float = 3.0,
+        target_resonance: float = 0.7,
         min_temp: float = 0.3,
         max_temp: float = 2.0,
+        mirostat_tau: float = 0.1,
     ) -> tuple[List[int], dict]:
         """
         Generate tokens with various sampling strategies.
@@ -341,11 +365,13 @@ class ReweightGPT:
             seed_seq: initial token indices
             length: number of tokens to generate
             temperature: base temperature (used differently per strategy)
-            sampling: strategy - "basic", "top_k", "top_p", or "entropy"
+            sampling: strategy - "basic", "top_k", "top_p", "entropy", "mirostat", "mirostat_v2", "resonance"
             top_k: k for top-k sampling
             top_p: p for nucleus sampling
-            target_entropy: target entropy for entropy-aware sampling
+            target_entropy: target entropy for entropy-aware and mirostat sampling
+            target_resonance: target resonance for resonance-based sampling
             min_temp, max_temp: bounds for adaptive temperature
+            mirostat_tau: learning rate for mirostat sampling
         
         Returns:
             (tokens, stats) where stats contains generation metrics
@@ -370,6 +396,14 @@ class ReweightGPT:
         entropies = []
         confidences = []
         temps_used = []
+        resonances = []
+        
+        # mirostat state
+        mu = target_entropy * 2.0  # initial mu
+        
+        # resonance history (keep last N logits)
+        history_logits = []
+        history_window = 10
 
         for _ in range(length):
             logits = self.logits(seq)
@@ -391,6 +425,51 @@ class ReweightGPT:
                 )
                 temps_used.append(temp)
                 nxt = sample_top_p(logits_last, top_p, temp, self.rng)
+            
+            elif sampling == "resonance":
+                # adaptive temperature based on resonance with history
+                temp = resonance_temperature(
+                    logits_last,
+                    history_logits,
+                    target_resonance=target_resonance,
+                    min_temp=min_temp,
+                    max_temp=max_temp,
+                )
+                temps_used.append(temp)
+                nxt = sample_top_p(logits_last, top_p, temp, self.rng)
+                
+                # track resonance
+                if history_logits:
+                    try:
+                        from .nn import resonance_score
+                    except ImportError:
+                        from nn import resonance_score
+                    res = resonance_score(logits_last, history_logits[-1])
+                    resonances.append(res)
+                else:
+                    resonances.append(0.5)
+            
+            elif sampling == "mirostat":
+                # mirostat v1 sampling
+                nxt, mu = sample_mirostat(
+                    logits_last,
+                    target_entropy=target_entropy,
+                    tau=mirostat_tau,
+                    mu=mu,
+                    rng=self.rng,
+                )
+                temps_used.append(mu / target_entropy)  # normalized mu as "temperature"
+            
+            elif sampling == "mirostat_v2":
+                # mirostat v2 sampling with adaptive k
+                nxt, mu = sample_mirostat_v2(
+                    logits_last,
+                    target_entropy=target_entropy,
+                    tau=mirostat_tau,
+                    mu=mu,
+                    rng=self.rng,
+                )
+                temps_used.append(mu / target_entropy)  # normalized mu as "temperature"
 
             elif sampling == "top_p":
                 temps_used.append(temperature)
@@ -405,6 +484,12 @@ class ReweightGPT:
                 nxt = sample_basic(logits_last, temperature, self.rng)
 
             out.append(nxt)
+            
+            # update resonance history
+            if sampling == "resonance":
+                history_logits.append(logits_last.copy())
+                if len(history_logits) > history_window:
+                    history_logits.pop(0)
 
             # shift window
             seq = np.roll(seq, -1)
@@ -418,6 +503,11 @@ class ReweightGPT:
             "max_entropy": float(np.max(entropies)),
             "entropy_std": float(np.std(entropies)),
         }
+        
+        # add resonance stats if available
+        if resonances:
+            stats["mean_resonance"] = float(np.mean(resonances))
+            stats["resonance_std"] = float(np.std(resonances))
 
         return out, stats
 
@@ -438,12 +528,15 @@ class ReweightGPT:
         )
         return tokens
 
-    # ----- weight loading from .npz -----
+    # ----- weight loading/saving -----
 
     @classmethod
-    def from_npz(cls, vocab_size: int, path: str | Path) -> "ReweightGPT":
+    def theweightofhaze(cls, vocab_size: int, path: str | Path) -> "ReweightGPT":
         """
-        Load weights from .npz file exported by train.py.
+        Load weights from .npz file.
+        
+        Because the weight of haze is not in pounds or kilograms,
+        but in the patterns it learned from the void.
         
         Note: This loads as reweight-only heads (no content heads)
         to match the training architecture. Use head_type="reweight"
@@ -492,6 +585,51 @@ class ReweightGPT:
                 head.wr = data[f"blocks.{b}.heads.{h}.wr"].astype("float32")
 
         return model
+    
+    @classmethod
+    def from_npz(cls, vocab_size: int, path: str | Path) -> "ReweightGPT":
+        """Alias for theweightofhaze() for backward compatibility."""
+        return cls.theweightofhaze(vocab_size, path)
+    
+    def save_theweightofhaze(self, path: str | Path):
+        """
+        Save model weights to .npz file.
+        
+        Exports the weight of haze into the void,
+        so it can be summoned again later.
+        """
+        path = Path(path)
+        
+        # prepare weight dict
+        weights = {
+            "T": self.T,
+            "n_emb": self.n_emb,
+            "nodes": self.nodes,
+            "n_blocks": self.n_blocks,
+            "n_heads": self.n_heads,
+            "vocab_size": self.vocab_size,
+            "embed": self.embed,
+            "pos": self.pos,
+            "w2": self.w2,
+        }
+        
+        # save blocks and heads
+        for b, block in enumerate(self.blocks):
+            weights[f"blocks.{b}.w0"] = block.w0
+            weights[f"blocks.{b}.w1"] = block.w1
+            
+            for h, head in enumerate(block.heads):
+                # check if reweight head or hybrid
+                if hasattr(head, 'wr'):
+                    weights[f"blocks.{b}.heads.{h}.wv"] = head.wv
+                    weights[f"blocks.{b}.heads.{h}.wr"] = head.wr
+                elif hasattr(head, 'reweight'):
+                    # hybrid head - save reweight part
+                    weights[f"blocks.{b}.heads.{h}.wv"] = head.reweight.wv
+                    weights[f"blocks.{b}.heads.{h}.wr"] = head.reweight.wr
+        
+        np.savez_compressed(path, **weights)
+        print(f"[saved] the weight of haze → {path}")
 
 
 # ----------------- helpers -----------------

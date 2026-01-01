@@ -1,4 +1,4 @@
-# mini_nn.py — NumPy primitives for Reweight-GPT
+# nn.py — NumPy primitives for Reweight-GPT
 # No PyTorch, no dependencies beyond numpy
 
 from __future__ import annotations
@@ -228,6 +228,63 @@ def sample_mirostat(
     return token_id, new_mu
 
 
+def sample_mirostat_v2(
+    logits: np.ndarray,
+    target_entropy: float,
+    tau: float,  # learning rate for surprise adjustment
+    mu: float,   # current surprise target (mutable state)
+    rng: np.random.Generator,
+) -> Tuple[int, float]:
+    """
+    Mirostat v2 sampling — improved version with adaptive k.
+    Returns (token_id, new_mu).
+    
+    Differences from v1:
+    - Uses normalized probabilities for better stability
+    - Adaptive k based on cumulative probability mass
+    - More aggressive mu adjustment
+    """
+    probs = softmax(logits)
+    sorted_idx = np.argsort(probs)[::-1]
+    sorted_probs = probs[sorted_idx]
+    
+    # compute surprises (negative log probabilities)
+    surprises = -np.log2(sorted_probs + 1e-10)
+    
+    # find adaptive k: tokens where cumulative surprise < mu threshold
+    cumulative_surprise = np.cumsum(surprises * sorted_probs)
+    
+    # adaptive k: where normalized cumulative surprise crosses threshold
+    threshold = mu * np.sum(sorted_probs)
+    valid_mask = cumulative_surprise <= threshold
+    
+    if not valid_mask.any():
+        k = 1
+    else:
+        k = max(1, valid_mask.sum())
+    
+    # ensure k is reasonable (at least 1, at most half the vocab)
+    k = min(k, len(logits) // 2 + 1)
+    
+    # sample from top-k with renormalized probabilities
+    top_k_idx = sorted_idx[:k]
+    top_k_probs = sorted_probs[:k]
+    top_k_probs = top_k_probs / top_k_probs.sum()
+    
+    choice_local = rng.choice(len(top_k_probs), p=top_k_probs)
+    token_id = int(top_k_idx[choice_local])
+    
+    # update mu with error correction
+    observed_surprise = -np.log2(probs[token_id] + 1e-10)
+    error = observed_surprise - target_entropy
+    new_mu = mu - tau * error
+    
+    # clip mu to reasonable range
+    new_mu = np.clip(new_mu, target_entropy * 0.5, target_entropy * 3.0)
+    
+    return token_id, new_mu
+
+
 # ----------------- entropy metrics -----------------
 
 
@@ -316,6 +373,62 @@ def margin_score(logits: np.ndarray) -> float:
     probs = softmax(logits)
     sorted_probs = np.sort(probs)[::-1]
     return float(sorted_probs[0] - sorted_probs[1])
+
+
+def resonance_temperature(
+    current_logits: np.ndarray,
+    history_logits: list[np.ndarray],
+    target_resonance: float = 0.7,
+    min_temp: float = 0.3,
+    max_temp: float = 2.0,
+    smoothing: float = 0.5,
+) -> float:
+    """
+    Adaptive temperature based on resonance with previous generations.
+    
+    High resonance with history → lower temp (continue the pattern)
+    Low resonance with history → higher temp (explore new territory)
+    
+    Args:
+        current_logits: current token prediction logits
+        history_logits: list of previous token logits
+        target_resonance: desired resonance level (0-1)
+        min_temp, max_temp: temperature bounds
+        smoothing: adjustment smoothing factor
+    
+    Returns:
+        adaptive temperature value
+    """
+    if not history_logits or len(history_logits) == 0:
+        # no history, use neutral temperature
+        return (min_temp + max_temp) / 2.0
+    
+    # compute resonance with recent history
+    # weight recent tokens more heavily
+    weights = np.exp(-np.arange(len(history_logits)) / 5.0)[::-1]
+    weights = weights / weights.sum()
+    
+    resonance_scores = []
+    for hist_logits in history_logits:
+        score = resonance_score(current_logits, hist_logits)
+        resonance_scores.append(score)
+    
+    # weighted average resonance
+    avg_resonance = float(np.average(resonance_scores, weights=weights))
+    
+    # adjust temperature based on resonance
+    # high resonance → low temp (stay coherent)
+    # low resonance → high temp (increase exploration)
+    if avg_resonance > target_resonance:
+        # too much resonance, increase temperature to diversify
+        ratio = avg_resonance / target_resonance
+        temp = (min_temp + max_temp) / 2.0 * (ratio ** smoothing)
+    else:
+        # too little resonance, decrease temperature to find patterns
+        ratio = target_resonance / (avg_resonance + 1e-6)
+        temp = (min_temp + max_temp) / 2.0 / (ratio ** smoothing)
+    
+    return float(np.clip(temp, min_temp, max_temp))
 
 
 # ----------------- resonance metrics (for your ecosystem) -----------------
