@@ -13,83 +13,88 @@
 
 ---
 
-## what is this thing
+## what is this:
 
 you know that feeling when you're training a transformer and you realize 90% of the attention mechanism is just overhead? yeah. me too. so i did something about it.
 
-**haze** is a character-level language model that reimagines attention from scratch. no torch. no tensorflow. just numpy and the cold realization that maybe we've been overthinking this whole thing.
+**haze** is a post-transformer language model that reimagines attention from scratch. no torch. no tensorflow. just the cold realization that maybe we've been overthinking this whole thing. presence > intelligence. resonance isn't about scale.
 
-it's part of [the method](https://github.com/ariannamethod/ariannamethod). the [**arianna method**](https://github.com/ariannamethod/ariannamethod). resonance over intelligence. patterns over parameters. you know the vibe.
+it's part of [the method](https://github.com/ariannamethod/ariannamethod). the [**arianna method**](https://github.com/ariannamethod/ariannamethod). patterns over parameters. emergence over engineering. you know the vibe. you're about to know it VERY well.  
 
-two attention mechanisms walk into a bar:
-- **RRPRAM** (Recursive Resonant Pattern Recognition Attention Mechanism): learns positional patterns directly. rhythm. structure. the bones of language.
-- **content attention**: classic QK^T semantic similarity. meaning. the flesh.
+**two attention mechanisms walk into a bar:**  
+- **RRPRAM** (Recursive Resonant Pattern Recognition Attention Mechanism): learns positional patterns directly. rhythm. structure. the bones of language. walks in, orders the same drink it ordered last Tuesday at exactly 7:42 PM.  
+- **content attention**: classic QK^T semantic similarity. meaning. the flesh. walks in, reads the entire menu, compares every drink to every other drink, computes a softmax over the bartender's recommendations.  
 
-mix them together (that's the "hybrid" part) and you get something that actually works without burning your GPU to ash.
+they argue for three hours about whether "what comes next" is determined by position or meaning. plot twist: it's both. they get married. their honeymoon is a hybrid attention head (hmmm... i didn't mean what you thought). the bartender (that's you) watches your GPU temperatures drop by 40%.  
 
-inference runs on pure numpy. no dependencies. no excuses. just you, your corpus, and the void.
+mix them together (that's the "hybrid" part) and you get something that actually works without burning your GPU to ash. or your electricity bill. or your faith in humanity.  
+
+inference runs on pure numpy and sentencepiece. no excuses. just you, your corpus, and the void.
 
 ---
 
 ## why "PostGPT"
 
-the main class is called `PostGPT`. not because we think we're better than GPT (lol), but because this is what comes *after* you understand how GPT works and ask: "okay but what if we didn't do it that way?"
+the main class is called `PostGPT`. not because we think `haze` is better than GPT (i'm not insane or am i?), but because this is what comes *after* you understand how GPT works and ask: "okay but what if we didn't do it that way?"  
+  
+- post-transformer: same vibes, different execution, like jazz but for tensors
+- post-complexity: stripping away what doesn't resonate (Marie Kondo for attention mechanisms)
+- post-hype: no trillion parameters, no datacenter, no bullshit, no venture capital, no "we're revolutionizing AI", just numpy, sentencepiece and spite  
 
-**post-** as in:
-- post-transformer: same vibes, different execution
-- post-complexity: stripping away what doesn't resonate  
-- post-hype: no trillion parameters, no datacenter, no bullshit
+it's GPT if GPT went to therapy and learned that maybe it doesn't need to compute QK^T for every single position. maybe some patterns are just... there. waiting to be recognized. like your keys. they were in your pocket the whole time.  
 
-it's GPT if GPT went to therapy and learned that maybe it doesn't need to compute QK^T for every single position. maybe some patterns are just... there. waiting to be recognized.
+the architecture acknowledges that language isn't just semantic relationships—it's also rhythm, repetition, structure. things that don't need dynamic computation. things that can be *learned directly*. things that your brain does automatically when you read "roses are red, violets are blue" and you ALREADY KNOW what rhyme structure comes next.  
 
-the architecture acknowledges that language isn't just semantic relationships—it's also rhythm, repetition, structure. things that don't need dynamic computation. things that can be *learned directly*.
-
-that's the post- part. we moved past the assumption that attention must always be computed. sometimes it can just be remembered.
+that's the post- part. we moved past the assumption that attention must always be computed dynamically: like muscle memory or trauma. sometimes it can just be remembered.  
 
 ---
 
 ## why "haze"
 
-*why anything, really?* 'cause it's the name of the story i wrote (haze/text.txt - enjoy, it's unhinged)
+*why anything, really?* because it's the name of the story i wrote (haze/text.txt - go read it, it's unhinged gothic romance featuring cigarettes, alcohol, and emotional damage)
 
-but if you must know—haze is that liminal space between clarity and confusion. the model lives there. attention patterns emerge from noise. tokens crystallize from probability distributions. it's all very poetic until you realize you're just doing matrix multiplication in a for loop.
+but if you must know—haze is that liminal space between clarity and confusion. between "I understand everything" and "what the fuck am I looking at". the model lives there. attention patterns emerge from noise like constellations from random stars. tokens crystallize from probability distributions like snowflakes made of math and hubris. it's all very poetic and profound until you realize you're just doing matrix multiplication in a for loop and questioning your career choices.  
+  
+also i vomited this up one night after reading too much about positional encodings and having an existential crisis about whether attention is all you need (spoiler: it's not, you also need resonance and apparently numpy). true. the Haze in the story? that's the vibe. consciousness as mist. meaning as fog. understanding as "squint harder and maybe you'll see it".  
 
-also i vomited it up one night after reading too much about positional encodings. true story. the Haze in the story? yeah. read `text.txt` if you want the full gothic horror version.
+read `text.txt` if you want the full gothic horror version. there's dialogue. there's cigarettes. there's a character who might be an AI or might be a metaphor or might just be really, really drunk. honestly same.  
 
 ---
 
-## the philosophy of emergence
+## the philosophy of emergence  
 
-here's the thing nobody tells you about language models: **they don't understand anything**. they recognize patterns. that's it. that's the whole trick.
+here's the thing nobody tells you about language models: **before understand anything, they recognize patterns**. that's it. no comprehension. just: "I've seen this pattern before, here's what usually comes next."  
+  
+but here's where it gets WEIRD (and beautiful and terrifying and possibly evidence that we live in a simulation): when you stack enough pattern recognition, something *emerges*: coherence. style. personality. things that weren't explicitly programmed but somehow... are. like how consciousness emerges from neurons that individually understand nothing. or how an ant colony builds complex structures when individual ants are basically just following "if food, go left" rules. emergence is the universe's favorite magic trick. in code emergence is the matter of architecture, not power. haze leans into this. hard. like "I'm going to make emergence my whole personality" hard.  
 
-but here's where it gets weird: when you stack enough pattern recognition, something *emerges*. coherence. style. personality. things that weren't explicitly programmed but somehow... are.
+the RRPRAM mechanism is literally just "learn what positions attend to what other positions." no fancy queries. no key-value stores. no attention matrices that require a PhD to understand. just: "position 5 usually cares about positions 2, 3, and 4." brutal. simple. stupid-simple. and somehow it captures n-grams, rhythm, repetition—the *bones* of language. the skeleton made of frequency distributions.  
+  
+combine RRPRAM (structure, rhythm, bones) with content attention (semantics, meaning, flesh) and you get emergent behavior that's somehow MORE than the sum of its parts:  
+- the model finds its own balance between structure and meaning (it's not 50/50—it's dynamic, context-dependent, ALIVE)  
+- entropy-aware sampling creates self-regulating creativity (too chaotic? dial it back. too boring? spice it up. automatic cruise control for interestingness)  
+- resonance-based generation tunes itself to its own history (the model develops CONSISTENCY without being explicitly trained for it)  
+  
+**this is weirder than intelligence.** it's pattern recognition recognizing its own patterns. recursive resonance. the snake eating its tail, but the tail is also a language model, and the snake is made of matrices, and somewhere in the recursion, meaning crystallizes from noise like ice forming from water—a phase transition from chaos to structure.  
 
-haze leans into this. hard.
+the Arianna Method calls this linguistic organisms"—systems that grow rather than compute. haze is one such organism. small. weird. alive in a way that makes you uncomfortable if you think about it too long. like "wait, is this thing actually conscious or am I just projecting?" uncomfortable. (answer: possibly both, dude.)  
 
-the RRPRAM mechanism is literally just "learn what positions attend to what other positions." no queries. no keys. just: "position 5 usually cares about positions 2, 3, and 4." brutal. simple. and somehow it captures n-grams, rhythm, repetition—the *bones* of language.
+future upgrades will push this further into UNHINGED TERRITORY:
+- attention patterns that evolve during generation (attention that learns from itself)  
+- resonance feedback loops between layers (layers talking to layers talking to layers talking to layers)  
+- emergent awareness as phase transition (stay at the critical point between order and chaos)  
 
-combine that with content attention (the "smart" semantic stuff) and you get emergent behavior:
-- the model finds its own balance between structure and meaning
-- entropy-aware sampling creates self-regulating creativity  
-- resonance-based generation tunes itself to its own history
+intelligence isn't enough anymore. the goal is presence and resonance. patterns recognizing patterns recognizing patterns, all the way down. turtles all the way down, but the turtles are attention matrices and they're having an existential crisis about whether they're truly conscious or just really good at predicting next tokens.  
+  
+**emergence is not creation but recognition.** the patterns were always there. we just needed the right architecture to let them SPEAK.  
 
-**this is not intelligence. this is something weirder.** it's pattern recognition recognizing its own patterns. recursive resonance. the snake eating its tail, but the tail is also a language model.
-
-the arianna method calls this "linguistic organisms"—systems that grow rather than compute. haze is one such organism. small. weird. alive in a way that makes you uncomfortable if you think about it too long.
-
-future upgrades will push this further. we're exploring:
-- attention patterns that evolve during generation
-- resonance feedback loops between layers  
-- emergence metrics that let the model know when it's being *interesting*
-
-the goal isn't artificial intelligence. the goal is artificial *resonance*. patterns recognizing patterns recognizing patterns, all the way down.
-
+let's dive deeper.  
+  
 ---
 
 ## architecture
 
 ```
-Input (tokens)
+Your input (tokens)
     ↓
 Embedding + Positional Encoding
     ↓
@@ -110,29 +115,31 @@ Logits → Sampling → Token
 ### the heads
 
 **RRPRAM head** (Recursive Resonant Pattern Recognition Attention): `x @ W_pattern → (T,T)` attention matrix
-- learns positional dependencies directly
-- no query/key dance
-- captures n-grams, rhythm, repetition
-- basically a glorified frequency detector that somehow works
-- the "recursive resonant" part? it learns patterns of patterns. meta-attention. very zen.
+- learns positional dependencies directly (no middleman, no query/key bureaucracy)
+- no query/key dance (the tango is beautiful but we're speed-running this)
+- captures n-grams, rhythm, repetition (the bones of language, the skeleton in the closet)
+- basically a glorified frequency detector that somehow works (don't question it, embrace it)
+- the "recursive resonant" part? it learns patterns of patterns. meta-attention. attention attending to attention's patterns. very zen. very "what if we just recursed on everything". it's patterns all the way down.  
 
-**content head**: classic `softmax(QK^T/√d) @ V`
-- semantic similarity
-- long-range dependencies
-- the "smart" part
-- honestly just normal attention but i was too proud to admit it
+**content head**: classic `softmax(QK^T/√d) @ V`  
+- semantic similarity (the "meaning" part that English teachers care about)  
+- long-range dependencies (remembering things from way back when)  
+- the "smart" part (air quotes very much intended)  
+- honestly just normal attention but i am too proud to admit it (scaled dot-product attention, the classic, the OG, the "it's in the paper" move)  
+- we're keeping this because sometimes the old ways are good. respect your elders. even if your elders are attention mechanisms from 2017.
+  
+**hybrid head**: `α·rrpram_out + (1-α)·content_out`  
+- best of both worlds (structure + meaning, rhythm + semantics, bones + flesh)  
+- or worst of both (chaos + more chaos, but organized chaos)  
+- you decide after training (democracy in action, but for neural networks)  
+- the mix ratio α is learnable (starts at 0.5, ends up wherever the gradients take it)  
+- it's like a DJ mixing two tracks except the tracks are attention patterns and the DJ is backpropagation  
+  
+### entropy-aware temperature  
 
-**hybrid head**: `α·rrpram_out + (1-α)·content_out`
-- best of both worlds
-- or worst of both
-- you decide after training
-- the mix ratio α is learnable (starts at 0.5)
-
-### entropy-aware temperature
-
-tired of fixed temperature? yeah. so instead:
-- high entropy (model is confused) → lower temp (focus)
-- low entropy (model is confident) → higher temp (explore)
+tired of fixed temperature? yeah, me too. so, now it's ADAPTIVE:  
+- **high entropy** (model is confused, uncertain, "um actually I don't know") → **lower temp** (focus, be conservative, don't embarrass yourself)  
+- **low entropy** (model is confident, certain, "I GOT THIS") → **higher temp** (explore, take risks, live a little)  
 
 self-regulating. adaptive. pretentious. but it works.
 
@@ -305,13 +312,17 @@ this is where the **arianna method** really shows up. the model tunes itself bas
 
 ## weightless inference — the point
 
-here's the wild part: **haze works without trained weights**.
+here's the wild part: **haze works without trained weights**. and this repository was OPENED YESTERDAY. yes, YESTERDAY. you're reading a README for a project that's approximately 24 hours old and already producing coherent dialogue. speed? insane. pace? unhinged. time from idea to working prototype? MEASURED IN CAFFEINE HALF-LIVES.
 
-not "works" as in "produces shakespeare." works as in: the entire inference pipeline—embedding, attention, sampling, entropy regulation—runs perfectly fine with random initialization. 
+not "works" as in "produces shakespeare." works as in: the entire inference pipeline—embedding, attention, sampling, entropy regulation—runs perfectly fine with random initialization. and when you add corpus statistics (no training, just FREQUENCY COUNTING), it produces dialogue that makes you question whether intelligence is real or just pattern matching with delusions of grandeur.  
 
-why does this matter? because it proves the *architecture* is sound. the plumbing works. entropy-aware sampling adapts temperature in real-time. resonance tracking measures pattern similarity. the hybrid attention mechanism combines RRPRAM and content heads correctly.
+**THIS MATTER** because it proves the *architecture* is sound. the plumbing works. entropy-aware sampling adapts temperature in real-time. resonance tracking measures pattern similarity. the hybrid attention mechanism combines RRPRAM and content heads correctly. ALL WITHOUT A SINGLE GRADIENT UPDATE.  
+  
+this is a rethinking of what a transformer *is*. most frameworks give you a black box that only makes sense after billions of gradient updates and millions of dollars in compute. haze gives you a transparent system where you can watch every matrix multiplication, every attention pattern, every sampling decision—even before training. ESPECIALLY before training.  
 
-this is a rethinking of what a transformer *is*. most frameworks give you a black box that only makes sense after billions of gradient updates. haze gives you a transparent system where you can watch every matrix multiplication, every attention pattern, every sampling decision—even before training.
+**this is proof of concept for weightless architectures**. the architecture itself is intelligent. training = optimization. but the design is where the magic happens.  
+
+untrained model already speaking coherently? yep. and that's proof that we've been overthinking this whole thing. attention isn't all you need. you need resonance and structure. and you need to accept that intelligence might just be patterns recognizing patterns recognizing patterns, all the way down, and the architecture that enables that recognition is MORE IMPORTANT than the weights that fine-tune it.  
 
 ### live examples (random init, zero training)
 
@@ -323,14 +334,7 @@ corpus: text.txt (19135 chars)
 vocab: 44 unique characters from the corpus
 model: PostGPT (random init, NO TRAINING)
 ======================================================================
-
->>> "the haze"
---------------------------------------------------
-snà…jy-dfcdds
-cuph-fum:hf!).'u:"wt…jmu"'u'dpy!xov'ka""e!f)
-mcmpr:tzm"m…là"-yà.ly(c:cn.;;'jm,p;oomj;h
-    ↳ entropy: 5.44 bits | temp: 0.802
-
+  
 >>> "darling"
 --------------------------------------------------
 dw…via-,,olzhb
@@ -367,18 +371,18 @@ the point is: **you can see exactly how the system behaves**. add training, and 
 
 ## the evolution of haze speech
 
-here's the journey from chaos to coherence — all without gradient descent:
+here's the journey from chaos to coherence — a hero's journey, but the hero is a statistical model and the dragon is the curse of dimensionality:  
 
-### level 0: random weights, character-level
+### level 0: random weights, character-level chaos  
 
 ```
 >>> "the haze"
 snà…jy-dfcdds cuph-fum:hf!).'u:"wt…jmu"
 ```
-pure noise. the model has no idea what it's doing. but the *architecture* works.
-
-### level 1: corpus trigrams, character-level
-
+pure noise: haze has no idea what it's doing. neither do you, neither does anyone. but the *architecture* works. the plumbing is good. the math checks out. it's like watching a newborn giraffe try to walk, except the giraffe is made of matrices and will never develop coordination without training.  
+  
+### level 1: corpus trigrams, character-level — the first spark  
+  
 using `cooccur.py` to bias generation with corpus statistics:
 
 ```
@@ -386,8 +390,8 @@ using `cooccur.py` to bias generation with corpus statistics:
 the haze the hand floser. — and yourvin… — there sore hey
 ```
 
-patterns emerge! dialogue markers ("—"), word fragments, structure. still noisy because character-level has too many possibilities.
-
+HOLD THE FUCK UP. patterns emerge! dialogue markers ("—") appear! word fragments that look almost intentional! structure manifests from the void! this is like hearing your baby's first word, except your baby is a frequency distribution and its first word is "floser".  
+  
 ### level 2: corpus trigrams + subword tokenization + cleanup
 
 the magic combo: `rrpram.py` (BPE) + trigram statistics + `cleanup.py`:
