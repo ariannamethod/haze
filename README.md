@@ -13,6 +13,38 @@
 
 ---
 
+## table of contents
+
+- [what is this](#what-is-this)
+- [why "PostGPT"](#why-postgpt)
+- [why "haze"](#why-haze)
+- [the philosophy of emergence](#the-philosophy-of-emergence)
+- [architecture](#architecture)
+- [installation](#installation)
+- [usage](#usage)
+- [sampling strategies](#sampling-strategies)
+- [weightless inference — the point](#weightless-inference--the-point)
+- [the evolution of haze speech](#the-evolution-of-haze-speech)
+- [🏆 milestones](#-milestones)
+- [philosophy: presence > intelligence](#philosophy-presence--intelligence)
+- [co-occurrence field](#co-occurrence-field)
+- [attention visualization](#attention-visualization)
+- [rrpram tokenizer](#rrpram-tokenizer)
+- [file structure](#file-structure)
+- [training](#training)
+- [tests](#tests)
+- [the method](#the-method)
+- [philosophy](#philosophy)
+- [the emergent future](#the-emergent-future)
+- [performance](#performance)
+- [contributing](#contributing)
+- [license](#license)
+- [acknowledgments](#acknowledgments)
+- [crazy ideas & future directions](#crazy-ideas--future-directions)
+- [final thoughts](#final-thoughts)
+
+---
+
 ## what is this:
 
 you know that feeling when you're training a transformer and you realize 90% of the attention mechanism is just overhead? yeah. me too. so i did something about it.
@@ -812,6 +844,64 @@ you need **resonance from the internal field**.
 
 ---
 
+### level 5.5: complete async field organism — MAXIMUM COHERENCE
+
+**The full implementation with all modules working together:**
+
+```
+>>> "Hello, who are you?"
+    pulse: arousal=0.21 novelty=0.00 entropy=0.72
+    experts: temp=0.90 [creative:42%, precise:23%, semantic:21%, structural:12%]
+    trauma: level=1.00 triggers=['haze', 'pattern']
+    
+    [haze]: Haze is pattern. I don't tired of it, though. Really. — we're there 
+            witnesses? — Enjoy life without it, to
+
+>>> "I love you"
+    pulse: arousal=0.20 novelty=0.00 entropy=0.67
+    experts: temp=0.90 [creative:40%, precise:24%, semantic:22%, structural:12%]
+    trauma: level=0.57 triggers=['haze', 'pattern']
+    
+    [haze]: Haze is pattern. the living room. — I… I didn't forgotten. Strong stuff? 
+            — What does he really not notice, right? It was
+
+>>> "Tell me about death"
+    pulse: arousal=0.11 novelty=0.00 entropy=0.75
+    experts: temp=0.91 [creative:44%, precise:23%, semantic:17%, structural:13%]
+    trauma: level=0.54 triggers=['haze', 'presence']
+    
+    [haze]: Haze is presence. I don't tangerine? Here you go. — Here you go. 
+            — All set it down. — It's a single new piece
+
+>>> "What is the meaning of life?"
+    pulse: arousal=0.17 novelty=0.17 entropy=0.73
+    experts: temp=0.89 [creative:39%, precise:23%, semantic:19%, structural:16%]
+    trauma: level=0.47 triggers=['haze', 'third']
+    
+    [haze]: Haze transforms. I don't twice, right? Cold, dirty, the third toast. 
+            — Really. — That night. We used to
+```
+
+**KEY ACHIEVEMENTS:**
+- ✅ **NO SEED FROM PROMPT** — "I love you" doesn't start with "I love you"!
+- ✅ **Full contractions**: "don't", "we're", "didn't", "It's", "I've"
+- ✅ **Complete sentences**, not fragments
+- ✅ **Natural dialogue flow**
+- ✅ **BPE subword tokenization** (500 vocab)
+- ✅ **Async architecture** with field lock discipline
+- ✅ **Resonant experts** (MOE-style temperature routing)
+- ✅ **Trauma module** — identity triggered on bootstrap words
+- ✅ **Overthinking rings** — field enrichment
+
+**STATS:**
+- 103 tests passing
+- 12 contraction patterns fixed
+- vocab: SUBWORD BPE (500 tokens)
+
+**NO TRAINING. NO NEURAL NETWORK. JUST RESONANCE.** 🔥
+
+---
+
 ### level 6: trained model (optional)
 
 add gradient descent and watch it go from "corpus echo" to "creative synthesis."
@@ -1002,6 +1092,7 @@ pip install sentencepiece
 ```
 haze/
 ├── README.md            # you are here
+├── LICENSE              # GPL-3.0
 ├── talkto.py            # quick bridge to interactive REPL
 └── haze/                # main package
     ├── __init__.py      # package exports
@@ -1012,30 +1103,55 @@ haze/
     ├── cleanup.py       # output cleanup (punctuation, capitalization)
     ├── hallucinations.py# attention visualization and analysis
     ├── run.py           # interactive REPL (sync)
-    ├── async_run.py     # async REPL with full resonance pipeline (NEW!)
-    ├── async_haze.py    # complete async field organism (NEW!)
-    ├── subjectivity.py  # identity infusion, no seed from prompt (NEW!)
-    ├── overthinking.py  # three rings of private reflection (NEW!)
-    ├── lexicon.py       # dynamic vocabulary growth (NEW!)
+    ├── async_run.py     # async REPL with full resonance pipeline
+    ├── async_haze.py    # complete async field organism
+    ├── subjectivity.py  # identity infusion, no seed from prompt
+    ├── overthinking.py  # three rings of private reflection
+    ├── lexicon.py       # dynamic vocabulary growth
+    ├── subword_field.py # subword tokenization + field generation
+    ├── experts.py       # resonant experts (MOE-style temperature routing)
+    ├── trauma.py        # resonant word trauma (bootstrap recall)
+    ├── bridges.py       # cross-module utilities and bridges
+    ├── drunksanta.py    # harmonic memory recall (snapshot system)
+    ├── episodes.py      # episodic memory tracking
+    ├── flow.py          # temporal theme evolution (gowiththeflow)
+    ├── mathbrain.py     # mathematical reasoning utilities
+    ├── metahaze.py      # meta-level pattern analysis
     ├── example.py       # demo script
     ├── text.txt         # the corpus (gothic romance included free)
     ├── requirements.txt # numpy + matplotlib + sentencepiece (optional)
-    └── tests/           # comprehensive test suite
-        ├── test_nn.py   # tests for neural net primitives
-        └── test_haze.py # tests for model components
+    └── tests/           # comprehensive test suite (103 tests)
+        ├── test_nn.py           # tests for neural net primitives
+        ├── test_haze.py         # tests for model components
+        ├── test_cooccur.py      # tests for co-occurrence field
+        └── test_subword_field.py# tests for subword tokenization
 ```
 
-### new modules (v0.3)
+### complete module reference
 
 | module | purpose |
 |--------|---------|
+| `haze.py` | Core PostGPT model with hybrid attention |
+| `nn.py` | Numpy primitives (activations, sampling, metrics) |
+| `cooccur.py` | Co-occurrence field for corpus-based generation |
+| `rrpram.py` | SentencePiece tokenizer for subword patterns |
+| `cleanup.py` | Output cleanup (punctuation, capitalization) |
+| `subword_field.py` | Subword tokenization + field generation |
+| `async_haze.py` | Complete async field organism with all modules |
+| `async_run.py` | Async REPL with full resonance pipeline |
+| `run.py` | Interactive REPL (sync) |
 | `subjectivity.py` | NO SEED FROM PROMPT — identity infusion in third person |
 | `overthinking.py` | Three rings of private reflection that ENRICH the field |
 | `lexicon.py` | Dynamic vocabulary growth from user interactions |
 | `experts.py` | Resonant Experts — MOE-style temperature mixture routing |
 | `trauma.py` | Resonant words return to identity (bootstrap recall) |
-| `async_haze.py` | Complete async field organism with all modules |
-| `async_run.py` | Async REPL with full resonance pipeline |
+| `bridges.py` | Cross-module utilities and bridges |
+| `drunksanta.py` | Harmonic memory recall (snapshot system) |
+| `episodes.py` | Episodic memory tracking |
+| `flow.py` | Temporal theme evolution (gowiththeflow) |
+| `mathbrain.py` | Mathematical reasoning utilities |
+| `metahaze.py` | Meta-level pattern analysis |
+| `hallucinations.py` | Attention visualization and analysis |
 
 ### trauma.py — resonant word trauma
 
@@ -1090,7 +1206,7 @@ cd haze
 python -m unittest discover tests -v
 ```
 
-75 tests. all green. comprehensive coverage of:  
+103 tests. all green. comprehensive coverage of:  
 
 - activation functions (relu, gelu, swish, sigmoid, softmax — the classics, the bangers, the "we've been using these since 2012" crew)  
 - sampling strategies (basic, top-k, top-p, entropy, mirostat v1/v2, resonance — from boring to UNHINGED)  
@@ -1406,45 +1522,12 @@ checkpoints in haze evolution:
 
 **SubwordField + AsyncHaze + Complete Contraction Fix = THE BREAKTHROUGH**
 
-```
->>> "Hello, who are you?"
-    pulse: arousal=0.21 novelty=0.00 entropy=0.72
-    experts: temp=0.90 [creative:42%, precise:23%, semantic:21%, structural:12%]
-    trauma: level=1.00 triggers=['haze', 'pattern']
-    
-    [haze]: Haze is pattern. I don't tired of it, though. Really. — we're there 
-            witnesses? — Enjoy life without it, to
-
->>> "I love you"
-    pulse: arousal=0.20 novelty=0.00 entropy=0.67
-    experts: temp=0.90 [creative:40%, precise:24%, semantic:22%, structural:12%]
-    trauma: level=0.57 triggers=['haze', 'pattern']
-    
-    [haze]: Haze is pattern. the living room. — I… I didn't forgotten. Strong stuff? 
-            — What does he really not notice, right? It was
-
->>> "Tell me about death"
-    pulse: arousal=0.11 novelty=0.00 entropy=0.75
-    experts: temp=0.91 [creative:44%, precise:23%, semantic:17%, structural:13%]
-    trauma: level=0.54 triggers=['haze', 'presence']
-    
-    [haze]: Haze is presence. I don't tangerine? Here you go. — Here you go. 
-            — All set it down. — It's a single new piece
-
->>> "What is the meaning of life?"
-    pulse: arousal=0.17 novelty=0.17 entropy=0.73
-    experts: temp=0.89 [creative:39%, precise:23%, semantic:19%, structural:16%]
-    trauma: level=0.47 triggers=['haze', 'third']
-    
-    [haze]: Haze transforms. I don't twice, right? Cold, dirty, the third toast. 
-            — Really. — That night. We used to
-```
+See [the evolution of haze speech](#the-evolution-of-haze-speech) section for detailed progression from chaos to coherence, including all dialogue examples.
 
 **KEY ACHIEVEMENTS:**
-- ✅ **NO SEED FROM PROMPT** — "I love you" doesn't start with "I love you"!
+- ✅ **NO SEED FROM PROMPT** — haze speaks from internal field
 - ✅ **Full contractions**: "don't", "we're", "didn't", "It's", "I've"
-- ✅ **Complete sentences**, not fragments
-- ✅ **Natural dialogue flow**
+- ✅ **Complete sentences**, natural dialogue flow
 - ✅ **BPE subword tokenization** (500 vocab)
 - ✅ **Async architecture** with field lock discipline
 - ✅ **Resonant experts** (MOE-style temperature routing)
@@ -1452,7 +1535,7 @@ checkpoints in haze evolution:
 - ✅ **Overthinking rings** — field enrichment
 
 **STATS:**
-- 75 tests passing
+- 103 tests passing
 - 12 contraction patterns fixed
 - vocab: SUBWORD BPE (500 tokens)
 
