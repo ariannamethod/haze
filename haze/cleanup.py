@@ -17,6 +17,7 @@
 
 import re
 from typing import Dict, Optional, List
+from collections import Counter
 import numpy as np
 
 
@@ -71,7 +72,6 @@ def _calculate_local_entropy(text: str, window: int = 20) -> float:
     
     # Count character frequencies
     chars = list(text[-window:] if len(text) > window else text)
-    from collections import Counter
     counts = Counter(chars)
     total = len(chars)
     
@@ -148,10 +148,11 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     
     # 8. Clean double dots and punctuation garbage  
     # Only fix actual errors, not valid ellipsis
-    # Pattern: two dots NOT followed by a third dot AND with optional space between
-    result = re.sub(r'\.(?<!\.\.)\.(?!\.)', '.', result)     # ".." → "." (but leave "..." alone)
-    result = re.sub(r'\.\s+,', '.', result)                    # ". ," → "."
-    result = re.sub(r',\s*,', ',', result)                     # ", ," → ","
+    # Simply remove cases where we have exactly two consecutive dots
+    # This preserves "..." (3 dots) and fixes ".." (2 dots) 
+    result = re.sub(r'(?<!\.)\.\.(?!\.)', '.', result)   # ".." → "." (but not part of "...")
+    result = re.sub(r'\.\s+,', '.', result)               # ". ," → "."
+    result = re.sub(r',\s*,', ',', result)                # ", ," → ","
     
     # 9. Fix dialogue markers (— should have space after)
     result = re.sub(r'—(?=[a-zA-Z])', '— ', result)
@@ -243,23 +244,27 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     
     # 15a_advanced. Advanced contraction patterns
     # Handle compound contractions: would've, could've, should've, etc.
+    # NOTE: These patterns must be specific to avoid matching valid text
+    # e.g., "we'd" should only match when truly a contraction, not "we did"
     advanced_contractions = [
         (r'\bwould\s+have\b', "would've"),
         (r'\bcould\s+have\b', "could've"),
         (r'\bshould\s+have\b', "should've"),
         (r'\bmight\s+have\b', "might've"),
         (r'\bmust\s+have\b', "must've"),
-        # Y'all, we'd, they'd
+        # Y'all is safe to fix
         (r'\by\s+all\b', "y'all"),
-        (r'\bwe\s*d\b', "we'd"),
-        (r'\bthey\s*d\b', "they'd"),
-        (r'\bhe\s*d\b', "he'd"),
-        (r'\bshe\s*d\b', "she'd"),
-        # Who'd, what'd, where'd
-        (r'\bwho\s*d\b', "who'd"),
-        (r'\bwhat\s*d\b', "what'd"),
-        (r'\bwhere\s*d\b', "where'd"),
-        (r'\bhow\s*d\b', "how'd"),
+        # For 'd contractions, only fix when followed by common contraction contexts
+        # "we'd gone" but NOT "we decided" 
+        (r'\bwe\s+d\s+(been|gone|said|thought|wanted|loved|hated|seen|done|known)\b', r"we'd \1"),
+        (r'\bthey\s+d\s+(been|gone|said|thought|wanted|loved|hated|seen|done|known)\b', r"they'd \1"),
+        (r'\bhe\s+d\s+(been|gone|said|thought|wanted|loved|hated|seen|done|known)\b', r"he'd \1"),
+        (r'\bshe\s+d\s+(been|gone|said|thought|wanted|loved|hated|seen|done|known)\b', r"she'd \1"),
+        # Who'd, what'd, where'd, how'd are safer
+        (r'\bwho\s+d\b', "who'd"),
+        (r'\bwhat\s+d\b', "what'd"),
+        (r'\bwhere\s+d\b', "where'd"),
+        (r'\bhow\s+d\b', "how'd"),
     ]
     
     for pattern, replacement in advanced_contractions:
@@ -279,8 +284,10 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     # Reverse case: "it's" before noun-like words should maybe be "its"
     # "it's wings" → "its wings", "it's purpose" → "its purpose"
     # But be conservative - only fix obvious cases
+    # Character class: ASCII apostrophe (U+0027) and fancy right single quote (U+2019)
+    # NOT including prime (U+2032) which is for math
     its_possessive_patterns = [
-        (r"\bit[''′]s\s+(wings?|eyes?|arms?|legs?|hands?|feet|head|face|body|heart|soul|mind|purpose|meaning|place|home|world)\b", r"its \1"),
+        (r"\bit['']s\s+(wings?|eyes?|arms?|legs?|hands?|feet|head|face|body|heart|soul|mind|purpose|meaning|place|home|world)\b", r"its \1"),
     ]
     for pattern, replacement in its_possessive_patterns:
         result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)

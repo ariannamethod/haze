@@ -286,7 +286,7 @@ class TestRealWorldExamples(unittest.TestCase):
         # Should fix repetition
         self.assertEqual(result.lower().count("the haze"), 1)
         # Should have proper ending
-        self.assertTrue(result.endswith('.'))  # Changed from checking for any punct
+        self.assertTrue(result.endswith('.'))
     
     def test_mixed_artifacts(self):
         """Test cleanup of mixed artifacts."""
