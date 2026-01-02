@@ -156,6 +156,15 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     result = re.sub(r'\.\s+,', '.', result)               # ". ," → "."
     result = re.sub(r',\s*,', ',', result)                # ", ," → ","
     
+    # 8a. Clean mid-sentence ellipsis that breaks flow
+    # ONLY for conjunctions: "but…" or "but..." → remove ellipsis, add space
+    # This is specifically for broken generation like "but… Tell me"
+    result = re.sub(r'(\b(?:but|and|or|so|if|when|while|because|although|though|yet|still))\s*…\s*', r'\1 ', result)
+    result = re.sub(r'(\b(?:but|and|or|so|if|when|while|because|although|though|yet|still))\s*\.{3}\s*', r'\1 ', result)
+    
+    # NOTE: Don't touch general "..." — it's valid punctuation!
+    # "Wait... really?" is fine, we just capitalize "really" later
+    
     # 9. Fix dialogue markers (— should have space after)
     result = re.sub(r'—(?=[a-zA-Z])', '— ', result)
     
@@ -187,6 +196,12 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     def cap_after_period(m):
         return m.group(1) + m.group(2).upper()
     result = re.sub(r'(\.\s+)([a-z])', cap_after_period, result)
+    
+    # 14a. EARLY ORPHAN FIX: "don" + pronoun/determiner → "ain't" 
+    # Must run BEFORE contraction fixes to catch "don nothing" → "ain't nothing"
+    # These patterns would otherwise become "don't nothing" which is grammatically wrong
+    result = re.sub(r"\bdon\s+(nothing|something|everything|anything|anyone|someone|everyone|nobody|somebody|everybody|nowhere|somewhere|everywhere|anywhere)\b", 
+                    r"ain't \1", result, flags=re.IGNORECASE)
     
     # 15. Fix broken contractions (character-level and subword generation artifacts)
     # Common contractions that get broken: don't, won't, can't, it's, etc.
@@ -352,7 +367,7 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     
     # AGGRESSIVE FIX: "don" + noun-like word (ends with s, es, tion, ness, ment, etc.) → "ain't"
     # This catches broken generation like "don tangerines", "don tears", "don twilight"
-    result = re.sub(r"\bdon\s+(tangerine|tangerines|tear|tears|twilight|table|tables|street|streets|vendor|vendors|cigarette|cigarettes|apartment|apartments|bottle|bottles|glass|glasses|drink|drinks|key|keys|door|doors|room|rooms|window|windows|floor|floors|wall|walls|chair|chairs|bed|beds|toilet|paper|money|time|place|thing|things|people|person|man|men|woman|women|child|children|hand|hands|face|faces|eye|eyes|head|heart|life|death|love|hate|fear|pain|joy|hope|dream|dreams|night|day|morning|evening|rain|snow|sun|moon|star|stars|sky|earth|world|fire|water|air|light|dark|darkness|silence|noise|sound|voice|word|words|name|story|stories|truth|lie|lies|secret|secrets|memory|memories|moment|moments|year|years|month|week|hour|minute|second|train|trains|thought|thoughts|idea|ideas|feeling|feelings|sense|body|soul|mind|spirit|god|devil|angel|ghost|shadow|shadows|dust|dirt|mud|blood|bone|bones|skin|flesh|hair|breath|step|steps|road|roads|path|paths|way|ways|bridge|bridges|river|rivers|sea|ocean|wave|waves|wind|storm|cloud|clouds|thunder|lightning|fog|mist|haze|smoke|ash|ashes|flame|flames|spark|sparks|ice|stone|stones|rock|rocks|sand|grass|tree|trees|flower|flowers|leaf|leaves|root|roots|branch|branches|bird|birds|dog|dogs|cat|cats|horse|horses|fish|wolf|wolves|bear|snake|rat|rats|mouse|mice|bug|bugs|fly|flies|bee|bees|spider|spiders|worm|worms)\b", r"ain't \1", result, flags=re.IGNORECASE)
+    result = re.sub(r"\bdon\s+(tangerine|tangerines|tear|tears|twilight|table|tables|street|streets|vendor|vendors|cigarette|cigarettes|apartment|apartments|bottle|bottles|glass|glasses|drink|drinks|key|keys|door|doors|room|rooms|window|windows|floor|floors|wall|walls|chair|chairs|bed|beds|toilet|paper|money|time|place|thing|things|people|person|man|men|woman|women|child|children|hand|hands|face|faces|eye|eyes|head|heart|life|death|love|hate|fear|pain|joy|hope|dream|dreams|night|day|morning|evening|rain|snow|sun|moon|star|stars|sky|earth|world|fire|water|air|light|dark|darkness|silence|noise|sound|voice|word|words|name|story|stories|truth|lie|lies|secret|secrets|memory|memories|moment|moments|year|years|month|week|hour|minute|second|train|trains|thought|thoughts|idea|ideas|feeling|feelings|sense|body|soul|mind|spirit|god|devil|angel|ghost|shadow|shadows|dust|dirt|mud|blood|bone|bones|skin|flesh|hair|breath|step|steps|road|roads|path|paths|way|ways|bridge|bridges|river|rivers|sea|ocean|wave|waves|wind|storm|cloud|clouds|thunder|lightning|fog|mist|haze|smoke|ash|ashes|flame|flames|spark|sparks|ice|stone|stones|rock|rocks|sand|grass|tree|trees|flower|flowers|leaf|leaves|root|roots|branch|branches|bird|birds|dog|dogs|cat|cats|horse|horses|fish|wolf|wolves|bear|snake|rat|rats|mouse|mice|bug|bugs|fly|flies|bee|bees|spider|spiders|worm|worms|twice|once|again|anymore|anyway|always|never|ever|often|sometimes|usually|rarely|seldom|here|there|now|then|today|tomorrow|yesterday|tonight|forever|together|alone|inside|outside|above|below|behind|ahead|around|away|back|down|up|over|under|through|across|along|beside|between|beyond|within|without|against|toward|towards|upon|onto|into|throughout|meanwhile|otherwise|somehow|somewhat|somewhere|anywhere|everywhere|nowhere|anywhere|nothing|something|everything|anything|anyone|someone|everyone|nobody|somebody|everybody)\b", r"ain't \1", result, flags=re.IGNORECASE)
     
     # Same for "won" orphan → "ain't" (rare but possible)
     result = re.sub(r"\bwon\s*$", "ain't", result, flags=re.IGNORECASE)
@@ -374,6 +389,26 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     result = re.sub(r"\byou\s+ll\b", "you'll", result, flags=re.IGNORECASE)
     result = re.sub(r"\bwe\s+ll\b", "we'll", result, flags=re.IGNORECASE)
     result = re.sub(r"\bi\s+ll\b", "I'll", result, flags=re.IGNORECASE)
+    
+    # 15d. Fix grammar errors with contractions
+    # "don't trying" → "don't try" (wrong verb form after negation)
+    # "can't going" → "can't go", etc.
+    # Use character class to match both ASCII apostrophe (') and fancy apostrophe (')
+    apos = "['\u2019]"  # ASCII U+0027 and Right Single Quotation Mark U+2019
+    result = re.sub(rf"\b(don{apos}t|can{apos}t|won{apos}t|couldn{apos}t|wouldn{apos}t|shouldn{apos}t|isn{apos}t|aren{apos}t|wasn{apos}t|weren{apos}t|haven{apos}t|hasn{apos}t|hadn{apos}t)\s+(\w+)ing\b", 
+                    lambda m: m.group(1) + ' ' + m.group(2), result, flags=re.IGNORECASE)
+    
+    # "didn't went" → "didn't go" (wrong tense after past negation)  
+    # Common irregular verbs
+    irregular_past_fixes = {
+        'went': 'go', 'came': 'come', 'saw': 'see', 'took': 'take',
+        'gave': 'give', 'made': 'make', 'got': 'get', 'had': 'have',
+        'said': 'say', 'told': 'tell', 'found': 'find', 'knew': 'know',
+        'thought': 'think', 'felt': 'feel', 'left': 'leave', 'kept': 'keep',
+    }
+    for past, base in irregular_past_fixes.items():
+        result = re.sub(rf"\b(didn{apos}t|couldn{apos}t|wouldn{apos}t|shouldn{apos}t)\s+{past}\b", 
+                        rf"\1 {base}", result, flags=re.IGNORECASE)
     
     # 16. Remove word/phrase repetition (character-level generation artifact)
     # BUT preserve intentional poetic repetitions

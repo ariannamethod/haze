@@ -463,6 +463,84 @@ def harmonic_mean(values: np.ndarray) -> float:
     return float(len(values) / np.sum(1.0 / values))
 
 
+# ----------------- min-p sampling (from Grok) -----------------
+
+
+def sample_min_p(
+    logits: np.ndarray,
+    min_p: float,
+    temperature: float,
+    rng: np.random.Generator,
+) -> int:
+    """
+    Min-p sampling — remove tokens with probability below min_p * max_prob.
+    
+    More adaptive than top-p: follows model confidence naturally.
+    When confident (high max_prob), aggressively filters.
+    When uncertain (low max_prob), allows more options.
+    
+    Args:
+        logits: raw model logits
+        min_p: minimum probability threshold (typically 0.05-0.1)
+        temperature: sampling temperature
+        rng: random number generator
+    
+    Returns:
+        sampled token index
+    """
+    if temperature <= 0:
+        return int(np.argmax(logits))
+    
+    logits = logits / temperature
+    probs = softmax(logits)
+    
+    max_prob = probs.max()
+    threshold = min_p * max_prob
+    mask = probs >= threshold
+    
+    if not mask.any():
+        return int(np.argmax(probs))
+    
+    filtered_probs = probs * mask
+    filtered_probs = filtered_probs / filtered_probs.sum()
+    
+    return int(rng.choice(len(filtered_probs), p=filtered_probs))
+
+
+# ----------------- quality metrics (from Grok) -----------------
+
+
+def pattern_diversity_score(
+    tokens: list,
+    n: int = 3,
+) -> float:
+    """
+    Measure diversity of n-gram patterns in a sequence.
+    Higher score = more varied patterns (not stuck in loops).
+    
+    Use this to detect repetitive output BEFORE it pollutes the field.
+    
+    Args:
+        tokens: sequence of token IDs
+        n: n-gram size (default: trigrams)
+    
+    Returns:
+        diversity score in [0, 1] where 1 = maximally diverse
+    """
+    if len(tokens) < n:
+        return 1.0
+    
+    ngrams = [tuple(tokens[i:i+n]) for i in range(len(tokens) - n + 1)]
+    
+    if not ngrams:
+        return 1.0
+    
+    unique_ngrams = len(set(ngrams))
+    total_ngrams = len(ngrams)
+    
+    return float(unique_ngrams / total_ngrams)
+
+
 # ----------------- enhanced loop detection -----------------
 
 
