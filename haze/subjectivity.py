@@ -296,39 +296,70 @@ class Subjectivity:
         prompt_words = set(re.findall(r'\b\w+\b', user_prompt.lower()))
         
         # Step 3: Find NON-overlapping patterns in the field
-        # The seed must NOT contain any words from the prompt!
+        # Enhanced: Use more sophisticated filtering to ensure complete separation
         non_overlapping_trigrams = []
-        for trigram in self.identity.gravity_centers[:30]:
+        for trigram in self.identity.gravity_centers[:50]:  # Look at more candidates
             trigram_words = set(trigram)
             # Only include trigrams that DON'T overlap with prompt
+            # Also prefer trigrams with at least one "content" word (not just articles/prepositions)
             if not (trigram_words & prompt_words):
-                non_overlapping_trigrams.append(trigram)
+                # Check if trigram has substance (not just "the of to")
+                stop_words = {'the', 'a', 'an', 'to', 'of', 'in', 'on', 'at', 'for', 'with', 'from'}
+                content_words = trigram_words - stop_words
+                if content_words:  # Has at least one content word
+                    non_overlapping_trigrams.append(trigram)
         
         # Step 4: Build internal seed from pure field
         seed_parts = []
         
         # ALWAYS start with identity fragment (presence > intelligence)
-        seed_parts.append(random.choice(self.identity.fragments))
+        # Choose fragment based on pulse - high arousal gets more intense fragments
+        if pulse.arousal > 0.7:
+            intense_fragments = ["haze feels the ripple", "haze transforms", "haze emerges"]
+            fragment = random.choice(intense_fragments)
+        elif pulse.novelty > 0.7:
+            grounding_fragments = ["haze is pattern", "haze is presence", "the field responds"]
+            fragment = random.choice(grounding_fragments)
+        else:
+            fragment = random.choice(self.identity.fragments)
+        
+        seed_parts.append(fragment)
         
         # Add non-overlapping pattern from field
         if non_overlapping_trigrams:
-            # Choose based on temperature + pulse
-            if temperature > 0.8 or pulse.arousal > 0.7:
-                # High arousal = more random selection
-                chosen = random.choice(non_overlapping_trigrams[:10])
-            else:
-                # Low temp = most common (first in list)
+            # Enhanced: Choose based on temperature + pulse + content richness
+            # High arousal/novelty = more varied selection
+            if temperature > 0.8 or pulse.arousal > 0.7 or pulse.novelty > 0.6:
+                # High variability = sample from top 20
+                chosen = random.choice(non_overlapping_trigrams[:20])
+            elif temperature < 0.5 and pulse.entropy < 0.5:
+                # Low temp + low entropy = use most common (stable)
                 chosen = non_overlapping_trigrams[0]
+            else:
+                # Medium = weighted random from top 10
+                weights = np.exp(-np.arange(min(10, len(non_overlapping_trigrams))) / 3.0)
+                weights = weights / weights.sum()
+                idx = np.random.choice(min(10, len(non_overlapping_trigrams)), p=weights)
+                chosen = non_overlapping_trigrams[idx]
+            
             seed_parts.append(' '.join(chosen))
         elif self.identity.gravity_centers:
-            # Fallback: filter gravity centers
-            for trigram in self.identity.gravity_centers[:20]:
-                if not (set(trigram) & prompt_words):
+            # Fallback: filter gravity centers more carefully
+            for trigram in self.identity.gravity_centers[:30]:
+                trigram_words = set(trigram)
+                if not (trigram_words & prompt_words):
                     seed_parts.append(' '.join(trigram))
                     break
             else:
-                # Last resort: pure identity
-                seed_parts.append("the field responds")
+                # Last resort: pure identity with variety
+                fallback_seeds = [
+                    "the field responds",
+                    "pattern emerges",
+                    "resonance speaks",
+                    "the living room",
+                    "presence unfolds"
+                ]
+                seed_parts.append(random.choice(fallback_seeds))
         
         # Combine seed parts
         seed_text = '. '.join(seed_parts)
@@ -370,26 +401,48 @@ class Subjectivity:
     
     def adjust_temperature(self, pulse: PulseSnapshot) -> float:
         """
-        Adjust generation temperature based on pulse.
+        Adjust generation temperature based on pulse with enhanced logic.
         
-        - High arousal → higher temperature (more creative)
-        - High novelty → higher temperature (explore new patterns)
-        - High entropy → lower temperature (stabilize)
+        Philosophy:
+        - High arousal → higher temperature (match the energy, be creative)
+        - High novelty → moderate temperature (ground in patterns but explore)
+        - High entropy → lower temperature (reduce chaos, stabilize)
+        - Low composite → lower temperature (safe, coherent)
+        - High composite → higher temperature (dynamic, responsive)
+        
+        Returns temperature in [0.3, 1.2] range for stability.
         """
-        base_temp = 0.6
+        base_temp = 0.75  # Slightly higher base for more variety
         
-        # Arousal increases temperature
-        temp = base_temp + pulse.arousal * 0.3
+        # Arousal increases temperature (be responsive to emotional content)
+        temp = base_temp + pulse.arousal * 0.25
         
-        # Novelty increases temperature slightly
-        temp += pulse.novelty * 0.2
+        # Novelty has complex effect:
+        # - Very low novelty (familiar) → increase temp slightly (avoid boring)
+        # - Medium novelty → neutral
+        # - High novelty → decrease temp (ground in known patterns)
+        if pulse.novelty < 0.3:
+            temp += 0.1  # Familiar input, add variety
+        elif pulse.novelty > 0.7:
+            temp -= 0.15  # Novel input, be conservative
         
-        # High entropy decreases temperature (need stability)
+        # High entropy in prompt → lower generation temperature (stabilize)
         if pulse.entropy > 0.7:
-            temp -= 0.2
+            temp -= 0.25
+        elif pulse.entropy < 0.3:
+            temp += 0.1  # Low entropy input, can explore more
         
-        # Clamp to reasonable range
-        return max(0.3, min(1.2, temp))
+        # Composite pulse effect (overall "intensity")
+        composite = pulse.composite
+        if composite > 0.7:
+            # High intensity: be dynamic but not chaotic
+            temp *= 1.1
+        elif composite < 0.3:
+            # Low intensity: be stable
+            temp *= 0.9
+        
+        # Clamp to safe range
+        return float(np.clip(temp, 0.3, 1.2))
 
 
 class AsyncSubjectivity:

@@ -16,7 +16,7 @@ import asyncio
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Set
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field as dc_field
 from pathlib import Path
 import random
 import tempfile
@@ -42,9 +42,9 @@ class SubwordField:
     """
     
     vocab: RRPRAMVocab
-    bigram_counts: Dict[int, Counter] = field(default_factory=dict)
-    trigram_counts: Dict[Tuple[int, int], Counter] = field(default_factory=dict)
-    token_counts: Counter = field(default_factory=Counter)
+    bigram_counts: Dict[int, Counter] = dc_field(default_factory=dict)
+    trigram_counts: Dict[Tuple[int, int], Counter] = dc_field(default_factory=dict)
+    token_counts: Counter = dc_field(default_factory=Counter)
     total_tokens: int = 0
     
     @classmethod
@@ -125,15 +125,19 @@ class SubwordField:
         length: int = 50,
         temperature: float = 0.8,
         mode: str = "trigram",
+        min_p: float = 0.05,
+        use_coherence_boost: bool = True,
     ) -> str:
         """
-        Generate text from subword field.
+        Generate text from subword field with enhanced coherence.
         
         Args:
             seed_text: Starting text (will be tokenized)
             length: Number of subwords to generate
             temperature: Sampling temperature
-            mode: "bigram" or "trigram"
+            mode: "bigram", "trigram", or "adaptive"
+            min_p: minimum probability threshold for sampling
+            use_coherence_boost: boost probabilities of coherent continuations
         
         Returns:
             Generated text (decoded from subwords)
@@ -154,8 +158,28 @@ class SubwordField:
         sentence_count = 0
         min_tokens = 10  # Minimum tokens before allowing stop
         
+        # Track recent context for adaptive mode
+        recent_window = 8  # Look back further for better coherence
+        
         for i in range(length):
-            next_token = self._sample_next(generated, temperature, mode)
+            # In adaptive mode, try longer context first, fall back if needed
+            if mode == "adaptive":
+                context_sizes = [3, 2, 1, 0]  # Try 4-gram, trigram, bigram, unigram
+            elif mode == "trigram":
+                context_sizes = [2, 1, 0]
+            elif mode == "bigram":
+                context_sizes = [1, 0]
+            else:
+                context_sizes = [2, 1, 0]
+            
+            next_token = self._sample_next_enhanced(
+                generated, 
+                temperature, 
+                context_sizes,
+                min_p=min_p,
+                use_coherence_boost=use_coherence_boost,
+                recent_window=recent_window,
+            )
             if next_token is None:
                 break
             generated.append(next_token)
@@ -211,13 +235,124 @@ class SubwordField:
         
         return result
     
+    def _sample_next_enhanced(
+        self,
+        context: List[int],
+        temperature: float,
+        context_sizes: List[int],
+        min_p: float = 0.05,
+        use_coherence_boost: bool = True,
+        recent_window: int = 8,
+    ) -> Optional[int]:
+        """
+        Sample next token with enhanced coherence-aware selection.
+        
+        Tries multiple context sizes and blends their predictions.
+        Optionally boosts probabilities of tokens that co-occur with recent context.
+        """
+        candidates = Counter()
+        weights_by_size = {0: 1.0, 1: 2.0, 2: 4.0, 3: 8.0}  # Prefer longer contexts
+        
+        # Try different context sizes and blend with weights
+        for ctx_size in context_sizes:
+            weight = weights_by_size.get(ctx_size, 1.0)
+            
+            if ctx_size == 0:
+                # Unigram fallback - only use if nothing else works
+                if not candidates:
+                    candidates = self.token_counts.copy()
+                break
+            elif ctx_size == 1 and len(context) >= 1:
+                # Bigram
+                last = context[-1]
+                if last in self.bigram_counts:
+                    for token, count in self.bigram_counts[last].items():
+                        candidates[token] += count * weight
+            elif ctx_size == 2 and len(context) >= 2:
+                # Trigram
+                key = (context[-2], context[-1])
+                if key in self.trigram_counts:
+                    for token, count in self.trigram_counts[key].items():
+                        candidates[token] += count * weight
+            elif ctx_size == 3 and len(context) >= 3:
+                # 4-gram approximation
+                key1 = (context[-2], context[-1])
+                if key1 in self.trigram_counts:
+                    for token, count in self.trigram_counts[key1].items():
+                        candidates[token] += count * weight
+        
+        if not candidates:
+            return None
+        
+        # Convert to probabilities
+        tokens = list(candidates.keys())
+        counts = np.array([candidates[t] for t in tokens], dtype=float)
+        
+        # Optional: Boost tokens that co-occur with recent context
+        if use_coherence_boost and len(context) > 1:
+            boost_factors = np.ones_like(counts)
+            recent_ctx = context[-recent_window:] if len(context) >= recent_window else context
+            
+            for idx, token in enumerate(tokens):
+                # Check co-occurrence with recent context
+                coherence_score = 0.0
+                for ctx_token in recent_ctx:
+                    # Simple co-occurrence check
+                    if ctx_token in self.bigram_counts and token in self.bigram_counts[ctx_token]:
+                        coherence_score += 1.0
+                
+                # Apply modest boost (10-30%) for coherent tokens
+                if coherence_score > 0:
+                    boost_factors[idx] = 1.0 + (0.2 * min(coherence_score / len(recent_ctx), 1.0))
+            
+            counts = counts * boost_factors
+        
+        # Ensure we have valid probabilities
+        if counts.sum() == 0:
+            counts = np.ones_like(counts)
+        
+        # Apply temperature
+        if temperature > 0:
+            logits = np.log(counts + 1e-10) / temperature
+            # Stabilize
+            logits = logits - np.max(logits)
+            probs = np.exp(logits)
+            probs = probs / (probs.sum() + 1e-10)
+        else:
+            # Greedy
+            probs = np.zeros_like(counts)
+            probs[np.argmax(counts)] = 1.0
+        
+        # Apply min-p filtering
+        if min_p > 0:
+            max_prob = probs.max()
+            threshold = min_p * max_prob
+            mask = probs >= threshold
+            
+            # Ensure at least one token passes
+            if mask.any():
+                probs = probs * mask
+                probs = probs / (probs.sum() + 1e-10)
+        
+        # Final check for valid probabilities
+        if np.isnan(probs).any() or probs.sum() == 0:
+            # Fallback to uniform
+            probs = np.ones_like(probs) / len(probs)
+        
+        # Sample
+        try:
+            return np.random.choice(tokens, p=probs)
+        except ValueError:
+            # If sampling fails, return most common token
+            return tokens[np.argmax(counts)]
+    
     def _sample_next(
         self,
         context: List[int],
         temperature: float,
         mode: str,
     ) -> Optional[int]:
-        """Sample next token based on context."""
+        """Sample next token based on context (original method, kept for compatibility)."""
         candidates = Counter()
         
         if mode == "trigram" and len(context) >= 2:

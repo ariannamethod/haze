@@ -286,7 +286,9 @@ class AsyncHazeField:
                     seed_text=seed_text,
                     length=length,
                     temperature=adjusted_temp,
-                    mode="trigram"
+                    mode="adaptive",  # Use adaptive mode for better context
+                    min_p=0.05,  # Enable min-p sampling
+                    use_coherence_boost=True,  # Boost coherent continuations
                 )
             else:
                 # Fallback to character-level field

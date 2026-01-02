@@ -211,15 +211,23 @@ def cleanup_output(text: str, mode: str = "gentle") -> str:
     # 
     # "I don of that" → "I ain't of that"
     # "I don." → "I ain't."
-    # "I don trudge" → "I ain't trudge" (verb-like)
+    # "I don trudge" → "I don't trudge" (verb follows, so likely "don't")
     # 
-    # Match "don" when:
-    # - At end of text: \bdon$
-    # - Before punctuation: \bdon(?=[.,!?])
-    # - Before preposition/article (not a verb): \bdon\s+(of|the|a|an|to|for|with|from|about|by|on|in|at|my|your|his|her|their|its|this|that)
+    # Enhanced: Only use "ain't" when it's clearly orphaned (not before verb)
+    
+    # Pattern 1: "don" at end or before punctuation → "ain't"
     result = re.sub(r"\bdon\s*$", "ain't", result, flags=re.IGNORECASE)
     result = re.sub(r"\bdon(?=[.,!?])", "ain't", result, flags=re.IGNORECASE)
-    result = re.sub(r"\bdon\s+(of|the|a|an|to|for|with|from|about|by|on|in|at|my|your|his|her|their|its|this|that)\b", r"ain't \1", result, flags=re.IGNORECASE)
+    
+    # Pattern 2: "don" before non-verb words → "ain't"
+    # (of, the, a, an, to prepositions, articles, possessives)
+    result = re.sub(r"\bdon\s+(of|the|a|an|to|for|with|from|about|by|on|in|at|my|your|his|her|their|its|this|that|much|any|some|all|nothing|nobody|none)\b", 
+                    r"ain't \1", result, flags=re.IGNORECASE)
+    
+    # Pattern 3: "don" before adjective/noun (not verb) → "ain't"
+    # Common adjectives: good, bad, tired, bored, ready, sure, certain, etc.
+    result = re.sub(r"\bdon\s+(good|bad|tired|bored|ready|sure|certain|afraid|scared|worried|happy|sad|angry|sorry|right|wrong|real|fake|true|false)\b",
+                    r"ain't \1", result, flags=re.IGNORECASE)
     
     # Same for "won" orphan → "ain't" (rare but possible)
     result = re.sub(r"\bwon\s*$", "ain't", result, flags=re.IGNORECASE)
