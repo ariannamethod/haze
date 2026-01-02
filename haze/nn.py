@@ -184,6 +184,58 @@ def sample_top_p(
     return int(rng.choice(len(probs), p=probs))
 
 
+def sample_min_p(
+    logits: np.ndarray,
+    min_p: float,
+    temperature: float,
+    rng: np.random.Generator,
+) -> int:
+    """
+    Min-p sampling — remove tokens with probability below min_p * max_prob.
+    
+    This is often better than top-p for maintaining quality while allowing
+    diversity. Unlike top-p which uses cumulative threshold, min-p uses
+    relative threshold based on the top token's probability.
+    
+    When the model is confident (high max_prob), min_p aggressively filters.
+    When uncertain (low max_prob), min_p allows more options.
+    This creates adaptive behavior that follows model confidence.
+    
+    Args:
+        logits: raw model logits
+        min_p: minimum probability threshold (typically 0.05-0.1)
+        temperature: sampling temperature
+        rng: random number generator
+    
+    Returns:
+        sampled token index
+    """
+    if temperature <= 0:
+        return int(np.argmax(logits))
+    
+    logits = logits / temperature
+    probs = softmax(logits)
+    
+    # Find max probability
+    max_prob = probs.max()
+    
+    # Calculate absolute threshold
+    threshold = min_p * max_prob
+    
+    # Keep only tokens above threshold
+    mask = probs >= threshold
+    
+    # Ensure at least one token is kept
+    if not mask.any():
+        return int(np.argmax(probs))
+    
+    # Renormalize filtered probabilities
+    filtered_probs = probs * mask
+    filtered_probs = filtered_probs / filtered_probs.sum()
+    
+    return int(rng.choice(len(filtered_probs), p=filtered_probs))
+
+
 def sample_mirostat(
     logits: np.ndarray,
     target_entropy: float,
@@ -441,6 +493,8 @@ def resonance_score(
     """
     Measure resonance between two probability distributions.
     High resonance = similar uncertainty patterns.
+    
+    Returns value in [0, 1] where 1 = perfect resonance.
     """
     p = softmax(query_logits)
     q = softmax(context_logits)
@@ -448,6 +502,112 @@ def resonance_score(
     # Jensen-Shannon divergence (symmetric, bounded)
     m = 0.5 * (p + q)
     js = 0.5 * kl_divergence(p, m) + 0.5 * kl_divergence(q, m)
+    
+    # Convert JS divergence to similarity score (0 = identical, inf = totally different)
+    # JS divergence is bounded by log(2) ≈ 0.693
+    # Transform to [0, 1] where 1 = perfect match
+    resonance = 1.0 - min(js / 0.693, 1.0)
+    
+    return float(resonance)
+
+
+def field_coherence_score(
+    tokens: list[int],
+    vocab_size: int,
+    window_size: int = 5,
+) -> float:
+    """
+    Measure internal coherence of a token sequence.
+    Higher score = more self-consistent patterns.
+    
+    This measures how well the sequence "resonates with itself" by checking
+    if later tokens have high co-occurrence with earlier tokens in a sliding window.
+    
+    Args:
+        tokens: sequence of token IDs
+        vocab_size: vocabulary size
+        window_size: context window for co-occurrence
+    
+    Returns:
+        coherence score in [0, 1]
+    """
+    if len(tokens) < 2:
+        return 1.0
+    
+    # Build local co-occurrence from the sequence itself
+    cooccur_counts = np.zeros((vocab_size, vocab_size), dtype=np.int32)
+    
+    for i in range(len(tokens)):
+        center = tokens[i]
+        start = max(0, i - window_size)
+        end = min(len(tokens), i + window_size + 1)
+        
+        for j in range(start, end):
+            if i != j and tokens[j] < vocab_size:
+                cooccur_counts[center, tokens[j]] += 1
+    
+    # Calculate coherence as the average co-occurrence strength
+    # High coherence = tokens frequently appear near each other
+    coherence_sum = 0.0
+    count = 0
+    
+    for i in range(1, len(tokens)):
+        current = tokens[i]
+        # Look at previous tokens in window
+        start = max(0, i - window_size)
+        for j in range(start, i):
+            prev = tokens[j]
+            if prev < vocab_size and current < vocab_size:
+                coherence_sum += cooccur_counts[prev, current]
+                count += 1
+    
+    if count == 0:
+        return 0.5
+    
+    # Normalize by count and scale to [0, 1]
+    avg_cooccur = coherence_sum / count
+    # Use tanh to map [0, inf) to [0, 1)
+    coherence = float(np.tanh(avg_cooccur / 2.0))
+    
+    return coherence
+
+
+def pattern_diversity_score(
+    tokens: list[int],
+    n: int = 3,
+) -> float:
+    """
+    Measure diversity of n-gram patterns in a sequence.
+    Higher score = more varied patterns (not just repeating).
+    
+    This helps detect when generation is stuck in loops or
+    producing overly repetitive output.
+    
+    Args:
+        tokens: sequence of token IDs
+        n: n-gram size (default: trigrams)
+    
+    Returns:
+        diversity score in [0, 1] where 1 = maximally diverse
+    """
+    if len(tokens) < n:
+        return 1.0
+    
+    # Extract n-grams
+    ngrams = []
+    for i in range(len(tokens) - n + 1):
+        ngram = tuple(tokens[i:i+n])
+        ngrams.append(ngram)
+    
+    if not ngrams:
+        return 1.0
+    
+    # Calculate diversity as ratio of unique n-grams to total
+    unique_ngrams = len(set(ngrams))
+    total_ngrams = len(ngrams)
+    
+    diversity = unique_ngrams / total_ngrams
+    return float(diversity)
 
     # convert to similarity (0 = identical, 1 = maximally different)
     # invert for resonance score
