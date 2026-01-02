@@ -6,6 +6,12 @@
 import json
 import random
 from pathlib import Path
+import sys
+
+# Add parent dir to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from cloud.anchors import EMOTION_ANCHORS, get_all_anchors
 
 # Synthetic templates for each chamber
 TEMPLATES = {
@@ -187,10 +193,6 @@ def fill_template(template: str) -> str:
 def generate_examples(n_per_chamber: int = 30) -> list:
     """Generate synthetic training examples."""
     examples = []
-
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from cloud.anchors import EMOTION_ANCHORS, get_all_anchors
     all_anchors = get_all_anchors()
 
     for chamber, templates in TEMPLATES.items():
