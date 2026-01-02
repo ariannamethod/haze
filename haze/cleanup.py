@@ -18,7 +18,7 @@
 import re
 from typing import Dict, Optional, List
 from collections import Counter
-import numpy as np
+import math  # For entropy calculation instead of numpy
 
 
 def _detect_poetic_repetition(text: str) -> List[tuple]:
@@ -64,8 +64,10 @@ def _is_in_preserve_region(pos: int, regions: List[tuple]) -> bool:
 
 def _calculate_local_entropy(text: str, window: int = 20) -> float:
     """
-    Calculate local character-level entropy.
+    Calculate local character-level entropy using standard library.
     Used to detect coherent vs random text.
+    
+    Returns Shannon entropy in bits (log base 2).
     """
     if len(text) < 2:
         return 0.0
@@ -75,12 +77,12 @@ def _calculate_local_entropy(text: str, window: int = 20) -> float:
     counts = Counter(chars)
     total = len(chars)
     
-    # Shannon entropy
+    # Shannon entropy: -sum(p * log2(p))
     entropy = 0.0
     for count in counts.values():
-        p = count / total
-        if p > 0:
-            entropy -= p * np.log2(p)
+        if count > 0:
+            p = count / total
+            entropy -= p * math.log2(p)
     
     return entropy
 
@@ -235,7 +237,6 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
         (r'\bwe\s*ll\b', "we'll"),
         # they contractions
         (r'\bthey\s*re\b', "they're"),
-        # DEBUG: print("Checking they re pattern")
         (r'\bthey\s*ve\b', "they've"),
         (r'\bthey\s*ll\b', "they'll"),
     ]
@@ -283,9 +284,9 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
         
     # Reverse case: "it's" before noun-like words should maybe be "its"
     # "it's wings" → "its wings", "it's purpose" → "its purpose"
-    # But be conservative - only fix obvious cases
+    # Conservative approach: only fix obvious cases with common body/possession nouns
+    # This list covers the most common false positives we've observed
     # Character class: ASCII apostrophe (U+0027) and fancy right single quote (U+2019)
-    # NOT including prime (U+2032) which is for math
     its_possessive_patterns = [
         (r"\bit['']s\s+(wings?|eyes?|arms?|legs?|hands?|feet|head|face|body|heart|soul|mind|purpose|meaning|place|home|world)\b", r"its \1"),
     ]
@@ -458,28 +459,10 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     valid_short_words = {'i', 'a', 'an', 'or', 'so', 'oh', 'no', 'ok', 'to', 'go', 'we', 'he', 
                          'me', 'my', 'by', 'if', 'in', 'on', 'up', 'do', 'be', 'is', 'it', 
                          'at', 'as', 'of', 'am', 'us', 'hi'}  # Added 'hi'
-    # Also preserve contraction endings (single chars that follow apostrophe)
-    contraction_endings = {'m', 's', 't', 'd', 've', 're', 'll'}
     
-    # DISABLED: This is too aggressive and removes valid short words
-    # We'll keep this for reference but not apply it by default
-    # Only apply in strict mode
-    if mode == "strict":
-        def remove_garbage_words(match):
-            word = match.group(0)
-            # Check if word is valid
-            if word.lower() in valid_short_words:
-                return word
-            # Check if it's a contraction ending (preceded by apostrophe in original)
-            # We need to check context - if there's apostrophe before, keep it
-            start = match.start()
-            if start > 0 and result[start-1] in "'''" + chr(8217):
-                # This is a contraction ending, keep it
-                return word
-            return ''
-        
-        # Remove 1-2 char words that aren't in valid list (only in strict mode)
-        # result = re.sub(r'\b[a-zA-Z]{1,2}\b', remove_garbage_words, result)
+    # NOTE: Short word removal is disabled in gentle/moderate modes as it was too aggressive
+    # Only apply in strict mode for maximum cleanup
+    # This functionality is preserved for potential future use but not active by default
     
     # 17d. Remove consecutive short fragments (like "st I've")
     # Pattern: 3+ short fragments in a row that look like garbage

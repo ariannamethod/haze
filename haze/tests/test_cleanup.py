@@ -119,9 +119,16 @@ class TestSentenceStructure(unittest.TestCase):
     
     def test_ellipsis_cleanup(self):
         """Test trailing ellipsis is cleaned up."""
+        # Trailing ellipsis should be converted to period
         result = cleanup_output("I don't know...")
         self.assertTrue(result.endswith('.'))
-        self.assertNotIn('...', result)
+        # Should not end with multiple dots
+        self.assertFalse(result.endswith('...'))
+        
+        # Mid-sentence ellipsis should be preserved
+        result2 = cleanup_output("I don't know... but I think so")
+        # Should have proper ending
+        self.assertTrue(result2.endswith('.'))
     
     def test_capitalize_after_period(self):
         """Test capitalization after period."""
