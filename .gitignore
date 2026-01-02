@@ -213,3 +213,8 @@ haze/state/
 # CLOUD generated artifacts
 cloud_data.json
 /models/
+
+# CLOUD trained weights (cloud/models/)
+cloud/models/*.npz
+cloud/models/*.json
+!cloud/models/.gitkeep

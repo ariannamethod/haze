@@ -1,0 +1,1082 @@
+[
+  {
+    "text": "Apprehensive about losing what I know",
+    "primary": "apprehensive",
+    "secondary": "alarmed",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Panic rises as shadows close in",
+    "primary": "anxiety",
+    "secondary": "dread",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Wary of what's coming",
+    "primary": "scared",
+    "secondary": "timid",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Wary of what's coming",
+    "primary": "unease",
+    "secondary": "worry",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Tense waiting for their response",
+    "primary": "tense",
+    "secondary": "scared",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Unease spreads through me",
+    "primary": "vulnerable",
+    "secondary": "nervous",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Anxiety overwhelms me when I'm alone",
+    "primary": "apprehensive",
+    "secondary": "alarmed",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "I feel so vulnerable and scared",
+    "primary": "timid",
+    "secondary": "dread",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Unease spreads through me",
+    "primary": "insecure",
+    "secondary": "frightened",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Anxiety overwhelms me when I'm alone",
+    "primary": "frightened",
+    "secondary": "blank",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Threatened by unknown forces",
+    "primary": "nervous",
+    "secondary": "horror",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Dread fills me thinking about what's coming",
+    "primary": "paranoia",
+    "secondary": "timid",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Threatened by fate",
+    "primary": "worry",
+    "secondary": "dread",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Anxiety overwhelms me when I lose control",
+    "primary": "tense",
+    "secondary": "unease",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Nervous and frightened by their gaze",
+    "primary": "scared",
+    "secondary": "paranoia",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Apprehensive about losing what I know",
+    "primary": "worry",
+    "secondary": "dissociation",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Anxiety overwhelms me when I'm alone",
+    "primary": "unease",
+    "secondary": "wrath",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "I'm terrified of darkness",
+    "primary": "wary",
+    "secondary": "fear",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Tense waiting for their response",
+    "primary": "worry",
+    "secondary": "apprehensive",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Anxiety overwhelms me when things fall apart",
+    "primary": "wary",
+    "secondary": "tense",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Panic rises as time runs out",
+    "primary": "worry",
+    "secondary": "care",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Paranoid thoughts about judgment",
+    "primary": "frightened",
+    "secondary": "frightened",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Threatened by hidden enemies",
+    "primary": "timid",
+    "secondary": "bittersweet",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Dread fills me thinking about what's coming",
+    "primary": "vulnerable",
+    "secondary": "vulnerable",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "I feel so vulnerable and scared",
+    "primary": "fear",
+    "secondary": "threatened",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Tense waiting for the verdict",
+    "primary": "paranoia",
+    "secondary": "threatened",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "I'm terrified of loss",
+    "primary": "threatened",
+    "secondary": "paranoia",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Anxiety overwhelms me when I lose control",
+    "primary": "alarmed",
+    "secondary": "wary",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Horror grips me",
+    "primary": "insecure",
+    "secondary": "change",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Threatened by hidden enemies",
+    "primary": "fear",
+    "secondary": "horror",
+    "chamber": "FEAR"
+  },
+  {
+    "text": "Adoration for your soul",
+    "primary": "love",
+    "secondary": "gentle",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "I care so deeply about our bond",
+    "primary": "sweet",
+    "secondary": "gentle",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Longing for connection",
+    "primary": "compassion",
+    "secondary": "fondness",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Sweet feelings about betrayal",
+    "primary": "affection",
+    "secondary": "tenderness",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Passion ignites when sudden noise",
+    "primary": "adoration",
+    "secondary": "intimacy",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Devotion to you grows stronger",
+    "primary": "cherish",
+    "secondary": "affection",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Affection blooms when we laugh together",
+    "primary": "devotion",
+    "secondary": "intimacy",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "I care so deeply about this feeling",
+    "primary": "fondness",
+    "secondary": "longing",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Intimacy we share is precious",
+    "primary": "compassion",
+    "secondary": "melancholy",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Affection blooms when you hold me",
+    "primary": "longing",
+    "secondary": "attachment",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Intimacy we share is sacred",
+    "primary": "gentle",
+    "secondary": "intimacy",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Compassion guides me",
+    "primary": "cherish",
+    "secondary": "yearning",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Passion ignites when their gaze",
+    "primary": "sweet",
+    "secondary": "awe",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Yearning to be with you darling",
+    "primary": "attachment",
+    "secondary": "yearning",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Passion ignites when silence",
+    "primary": "love",
+    "secondary": "love",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Yearning to be with my heart",
+    "primary": "attachment",
+    "secondary": "love",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Sweet feelings about judgment",
+    "primary": "desire",
+    "secondary": "outrage",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Affection blooms when we laugh together",
+    "primary": "intimacy",
+    "secondary": "intimacy",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Passion ignites when their gaze",
+    "primary": "devotion",
+    "secondary": "compassion",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Attached to the future in ways I can't explain",
+    "primary": "fondness",
+    "secondary": "yearning",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Attached to change in ways I can't explain",
+    "primary": "affection",
+    "secondary": "affection",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Gentle moments with you",
+    "primary": "intimacy",
+    "secondary": "compassion",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "I cherish your trust",
+    "primary": "devotion",
+    "secondary": "detachment",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Affection blooms when we laugh together",
+    "primary": "adoration",
+    "secondary": "care",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Tenderness fills my heart when we touch",
+    "primary": "love",
+    "secondary": "passion",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Fondness for our first kiss",
+    "primary": "sweet",
+    "secondary": "gentle",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "I care so deeply about this feeling",
+    "primary": "yearning",
+    "secondary": "hope",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Affection blooms when you hold me",
+    "primary": "compassion",
+    "secondary": "compassion",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Yearning to be with my heart",
+    "primary": "desire",
+    "secondary": "attachment",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "I cherish your trust",
+    "primary": "adoration",
+    "secondary": "passion",
+    "chamber": "LOVE"
+  },
+  {
+    "text": "Irritation grows with every insult",
+    "primary": "aggression",
+    "secondary": "spite",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Frustration with their resistance",
+    "primary": "bitterness",
+    "secondary": "nervous",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Wrath consumes me",
+    "primary": "wrath",
+    "secondary": "worry",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "This makes me furious",
+    "primary": "annoyance",
+    "secondary": "anger",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Hatred for those who hurt me",
+    "primary": "loathing",
+    "secondary": "bitterness",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Outrage over walls collapse",
+    "primary": "frustration",
+    "secondary": "rage",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Frustration with their resistance",
+    "primary": "spite",
+    "secondary": "irritation",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Outrage over time runs out",
+    "primary": "anger",
+    "secondary": "anger",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Annoyance at {detail}",
+    "primary": "anger",
+    "secondary": "fury",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Rage builds inside me",
+    "primary": "resentment",
+    "secondary": "disgust",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Contempt for your soul",
+    "primary": "irritation",
+    "secondary": "contempt",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "This makes me furious",
+    "primary": "anger",
+    "secondary": "irritation",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Spite drives my actions",
+    "primary": "bitterness",
+    "secondary": "anxiety",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Frustration with these barriers",
+    "primary": "spite",
+    "secondary": "irritation",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Wrath consumes me",
+    "primary": "anger",
+    "secondary": "fury",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Irritation grows with each slight",
+    "primary": "hostility",
+    "secondary": "curiosity",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Rage builds inside me",
+    "primary": "contempt",
+    "secondary": "hatred",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Hostility rises when they mock",
+    "primary": "hostility",
+    "secondary": "contempt",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Fury at this corruption",
+    "primary": "irritation",
+    "secondary": "aggression",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Aggression surfaces as their gaze",
+    "primary": "annoyance",
+    "secondary": "alarmed",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Fury at that lie",
+    "primary": "anger",
+    "secondary": "hostility",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Aggression surfaces as their gaze",
+    "primary": "hostility",
+    "secondary": "aggression",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Hatred for the oppressor",
+    "primary": "irritation",
+    "secondary": "frustration",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Spite drives my actions",
+    "primary": "disgust",
+    "secondary": "resentment",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Disgust at their hypocrisy",
+    "primary": "contempt",
+    "secondary": "annoyance",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Contempt for your soul",
+    "primary": "irritation",
+    "secondary": "disgust",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Wrath consumes me",
+    "primary": "hostility",
+    "secondary": "gratitude",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Bitterness about how I was treated",
+    "primary": "outrage",
+    "secondary": "gentle",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Hostility rises when they mock",
+    "primary": "aggression",
+    "secondary": "gratitude",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Frustration with these barriers",
+    "primary": "anger",
+    "secondary": "bitterness",
+    "chamber": "RAGE"
+  },
+  {
+    "text": "Hollow and distant from everything",
+    "primary": "nothing",
+    "secondary": "void",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Numbness spreads through me",
+    "primary": "void",
+    "secondary": "detachment",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Nothing matters anymore",
+    "primary": "apathy",
+    "secondary": "emptiness",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Dead inside, can't feel",
+    "primary": "drift",
+    "secondary": "dissociation",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Absence of feeling",
+    "primary": "absence",
+    "secondary": "absence",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Detachment from I lose control",
+    "primary": "drift",
+    "secondary": "emptiness",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Numbness spreads through me",
+    "primary": "absence",
+    "secondary": "absence",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Nothing matters anymore",
+    "primary": "indifference",
+    "secondary": "cold",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Cold emptiness fills the space",
+    "primary": "dissociation",
+    "secondary": "liminal",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Numbness spreads through me",
+    "primary": "dissociation",
+    "secondary": "emptiness",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Cold emptiness fills the space",
+    "primary": "apathy",
+    "secondary": "detachment",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Detachment from I'm alone",
+    "primary": "flat",
+    "secondary": "emptiness",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Void consumes all sensation",
+    "primary": "detachment",
+    "secondary": "numbness",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Apathy toward betrayal",
+    "primary": "drift",
+    "secondary": "gratitude",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Cold emptiness fills the space",
+    "primary": "absence",
+    "secondary": "surprise",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Drifting without purpose",
+    "primary": "cold",
+    "secondary": "absence",
+    "chamber": "VOID"
+  },
+  {
+    "text": "I feel completely empty inside",
+    "primary": "emptiness",
+    "secondary": "hollow",
+    "chamber": "VOID"
+  },
+  {
+    "text": "I feel completely empty inside",
+    "primary": "cold",
+    "secondary": "apathy",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Absence of feeling",
+    "primary": "detachment",
+    "secondary": "blank",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Absence of feeling",
+    "primary": "void",
+    "secondary": "numbness",
+    "chamber": "VOID"
+  },
+  {
+    "text": "I feel completely empty inside",
+    "primary": "blank",
+    "secondary": "absence",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Cold emptiness fills the space",
+    "primary": "dissociation",
+    "secondary": "absence",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Absence of feeling",
+    "primary": "void",
+    "secondary": "nothing",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Dead inside, can't feel",
+    "primary": "blank",
+    "secondary": "dead",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Apathy toward betrayal",
+    "primary": "flat",
+    "secondary": "detachment",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Drifting without purpose",
+    "primary": "dead",
+    "secondary": "detachment",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Flat affect, no emotion",
+    "primary": "void",
+    "secondary": "love",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Dissociation from reality",
+    "primary": "cold",
+    "secondary": "apathy",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Dead inside, can't feel",
+    "primary": "drift",
+    "secondary": "terror",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Flat affect, no emotion",
+    "primary": "dissociation",
+    "secondary": "adoration",
+    "chamber": "VOID"
+  },
+  {
+    "text": "Flux and transformation",
+    "primary": "ambivalence",
+    "secondary": "ambivalence",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Confusion about things fall apart",
+    "primary": "curiosity",
+    "secondary": "uncertainty",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Confusion about I lose control",
+    "primary": "wonder",
+    "secondary": "desire",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Curious about what happens next",
+    "primary": "shift",
+    "secondary": "sweet",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Confusion about things fall apart",
+    "primary": "curiosity",
+    "secondary": "attachment",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Ambivalence toward both paths",
+    "primary": "change",
+    "secondary": "ambivalence",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Confusion about I'm alone",
+    "primary": "confusion",
+    "secondary": "surprise",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Anticipation builds for shadows close in",
+    "primary": "flux",
+    "secondary": "alarmed",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Searching for meaning",
+    "primary": "anticipation",
+    "secondary": "ambivalence",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Change approaches",
+    "primary": "change",
+    "secondary": "curiosity",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Searching for meaning",
+    "primary": "anticipation",
+    "secondary": "ambivalence",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Uncertainty clouds my judgment",
+    "primary": "searching",
+    "secondary": "rage",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Uncertainty clouds my judgment",
+    "primary": "wonder",
+    "secondary": "transition",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Searching for purpose",
+    "primary": "confusion",
+    "secondary": "loathing",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Restless energy seeking {outlet}",
+    "primary": "ambivalence",
+    "secondary": "change",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Searching for truth",
+    "primary": "searching",
+    "secondary": "warmth",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Flux and transformation",
+    "primary": "transition",
+    "secondary": "care",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Between worlds, liminal space",
+    "primary": "wonder",
+    "secondary": "devotion",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Change approaches",
+    "primary": "transition",
+    "secondary": "curiosity",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Shift happening in the world",
+    "primary": "uncertainty",
+    "secondary": "transition",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Shift happening in my identity",
+    "primary": "confusion",
+    "secondary": "uncertainty",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Shift happening in my identity",
+    "primary": "searching",
+    "secondary": "liminal",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Shift happening in my identity",
+    "primary": "change",
+    "secondary": "shift",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Wonder at the stars",
+    "primary": "confusion",
+    "secondary": "shift",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Change approaches",
+    "primary": "change",
+    "secondary": "hope",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "In the threshold of becoming",
+    "primary": "wonder",
+    "secondary": "confusion",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Confusion about things fall apart",
+    "primary": "searching",
+    "secondary": "wonder",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Anticipation builds for walls collapse",
+    "primary": "shift",
+    "secondary": "shift",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Ambivalence toward both paths",
+    "primary": "curiosity",
+    "secondary": "wonder",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Confusion about I'm alone",
+    "primary": "between",
+    "secondary": "shift",
+    "chamber": "FLOW"
+  },
+  {
+    "text": "Relief when I'm safe",
+    "primary": "shame",
+    "secondary": "shame",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Relief when I'm safe",
+    "primary": "guilt",
+    "secondary": "envy",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Pride in what I built",
+    "primary": "shame",
+    "secondary": "pride",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Jealousy consumes me when I see them shine",
+    "primary": "envy",
+    "secondary": "betrayal",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Gratitude for your presence",
+    "primary": "pride",
+    "secondary": "jealousy",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Jealousy consumes me when they win",
+    "primary": "jealousy",
+    "secondary": "pride",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Betrayal cuts deep",
+    "primary": "jealousy",
+    "secondary": "hope",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Guilt about my silence",
+    "primary": "relief",
+    "secondary": "anticipation",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Pride in what I became",
+    "primary": "shame",
+    "secondary": "intimacy",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Envy toward their success",
+    "primary": "gratitude",
+    "secondary": "disappointment",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Envy toward what they have",
+    "primary": "relief",
+    "secondary": "bittersweet",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Disappointment with their response",
+    "primary": "guilt",
+    "secondary": "hostility",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Hope flickers for what's coming",
+    "primary": "bittersweet",
+    "secondary": "numbness",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Pride in what I became",
+    "primary": "guilt",
+    "secondary": "jealousy",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Guilt about my words",
+    "primary": "relief",
+    "secondary": "threatened",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Relief when crisis passes",
+    "primary": "melancholy",
+    "secondary": "shame",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Melancholy settles in",
+    "primary": "jealousy",
+    "secondary": "shame",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Jealousy consumes me when I see them shine",
+    "primary": "jealousy",
+    "secondary": "disappointment",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Regret about not choosing differently",
+    "primary": "melancholy",
+    "secondary": "bittersweet",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Nostalgia for what was stolen",
+    "primary": "shame",
+    "secondary": "flux",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Awe at this beauty",
+    "primary": "envy",
+    "secondary": "pride",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Hope flickers for what's coming",
+    "primary": "disappointment",
+    "secondary": "gratitude",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Envy toward their success",
+    "primary": "jealousy",
+    "secondary": "disappointment",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Disappointment with the verdict",
+    "primary": "betrayal",
+    "secondary": "nostalgia",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Gratitude for your presence",
+    "primary": "nostalgia",
+    "secondary": "aggression",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Disappointment with the verdict",
+    "primary": "disappointment",
+    "secondary": "cherish",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Gratitude for second chances",
+    "primary": "betrayal",
+    "secondary": "shame",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Betrayal cuts deep",
+    "primary": "melancholy",
+    "secondary": "awe",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Hope flickers for the unknown",
+    "primary": "disappointment",
+    "secondary": "threatened",
+    "chamber": "COMPLEX"
+  },
+  {
+    "text": "Betrayal cuts deep",
+    "primary": "betrayal",
+    "secondary": "nostalgia",
+    "chamber": "COMPLEX"
+  }
+]
