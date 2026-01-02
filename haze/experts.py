@@ -117,6 +117,70 @@ def compute_expert_weights(signals: FieldSignals) -> Dict[str, float]:
     return weights
 
 
+def compute_expert_weights_enhanced(
+    signals: FieldSignals,
+    context_history: Optional[List[Dict[str, float]]] = None,
+    momentum: float = 0.3,
+) -> Dict[str, float]:
+    """
+    Enhanced expert weight computation with context memory and momentum.
+    
+    Learns from previous routing decisions to maintain consistency
+    and avoid rapid switching between experts.
+    
+    Args:
+        signals: Current field signals
+        context_history: List of previous expert weight dicts
+        momentum: How much to blend with previous weights (0-1)
+    
+    Returns:
+        Dict of expert weights
+    """
+    # Compute base weights
+    current_weights = compute_expert_weights(signals)
+    
+    # Apply momentum from history
+    if context_history and len(context_history) > 0 and momentum > 0:
+        # Blend with recent history (exponential weighting)
+        history_weights = {
+            "structural": 0.0,
+            "semantic": 0.0,
+            "creative": 0.0,
+            "precise": 0.0,
+        }
+        
+        # Weight recent history more
+        decay = 0.7
+        total_weight = 0.0
+        for i, hist in enumerate(context_history[-5:]):  # Last 5 steps
+            weight = decay ** (len(context_history) - i - 1)
+            total_weight += weight
+            for expert in history_weights:
+                if expert in hist:
+                    history_weights[expert] += hist[expert] * weight
+        
+        if total_weight > 0:
+            for expert in history_weights:
+                history_weights[expert] /= total_weight
+        
+        # Blend current with history
+        blended = {}
+        for expert in current_weights:
+            blended[expert] = (
+                momentum * history_weights.get(expert, 0.25) +
+                (1 - momentum) * current_weights[expert]
+            )
+        
+        # Renormalize
+        total = sum(blended.values())
+        if total > 0:
+            blended = {k: v / total for k, v in blended.items()}
+        
+        return blended
+    
+    return current_weights
+
+
 def blend_experts(weights: Dict[str, float]) -> ExpertMixture:
     """
     Blend expert parameters using weights.

@@ -461,3 +461,217 @@ def harmonic_mean(values: np.ndarray) -> float:
     if len(values) == 0:
         return 0.0
     return float(len(values) / np.sum(1.0 / values))
+
+
+# ----------------- enhanced loop detection -----------------
+
+
+def detect_repetition_loop(
+    sequence: list,
+    window_size: int = 5,
+    min_loop_length: int = 2,
+    max_loop_length: int = 20,
+) -> Tuple[bool, int]:
+    """
+    Detect if sequence has fallen into a repetition loop.
+    
+    Returns:
+        (is_looping, loop_length) where loop_length is 0 if not looping
+    """
+    if len(sequence) < min_loop_length * 2:
+        return False, 0
+    
+    # Check last window_size elements for various loop patterns
+    recent = sequence[-window_size * 2:]
+    
+    for loop_len in range(min_loop_length, min(max_loop_length, len(recent) // 2) + 1):
+        # Check if the last loop_len tokens repeat
+        if len(recent) >= loop_len * 2:
+            pattern1 = recent[-loop_len:]
+            pattern2 = recent[-loop_len * 2:-loop_len]
+            
+            if pattern1 == pattern2:
+                # Verify it's actually repeating (not just a coincidence)
+                # Check if pattern appears at least 2-3 times
+                count = 0
+                for i in range(len(recent) - loop_len, -1, -loop_len):
+                    if recent[i:i + loop_len] == pattern1:
+                        count += 1
+                    else:
+                        break
+                
+                if count >= 2:
+                    return True, loop_len
+    
+    return False, 0
+
+
+def sample_with_loop_avoidance(
+    logits: np.ndarray,
+    recent_tokens: list,
+    temperature: float,
+    rng: np.random.Generator,
+    penalty_strength: float = 0.5,
+    window_size: int = 10,
+) -> int:
+    """
+    Sample token while avoiding repetition loops.
+    
+    Applies penalty to tokens that would continue or start a loop.
+    """
+    if len(recent_tokens) < 3:
+        return sample_basic(logits, temperature, rng)
+    
+    # Check for loops
+    is_looping, loop_length = detect_repetition_loop(recent_tokens)
+    
+    logits_adjusted = logits.copy()
+    
+    if is_looping and loop_length > 0:
+        # Strong penalty for continuing the loop
+        pattern = recent_tokens[-loop_length:]
+        if pattern:
+            next_expected = pattern[0]
+            if next_expected is not None and 0 <= next_expected < len(logits_adjusted):
+                logits_adjusted[next_expected] -= penalty_strength * 10.0
+    
+    # Penalize recently seen tokens (within window)
+    token_counts = {}
+    for token in recent_tokens[-window_size:]:
+        token_counts[token] = token_counts.get(token, 0) + 1
+    
+    for token, count in token_counts.items():
+        if 0 <= token < len(logits_adjusted) and count > 1:
+            # Progressive penalty based on frequency
+            logits_adjusted[token] -= penalty_strength * np.log(count + 1)
+    
+    return sample_basic(logits_adjusted, temperature, rng)
+
+
+# ----------------- enhanced entropy sampling -----------------
+
+
+def sample_entropy_aware_v2(
+    logits: np.ndarray,
+    target_entropy: float,
+    recent_entropies: list,
+    temperature: float,
+    rng: np.random.Generator,
+    min_temp: float = 0.3,
+    max_temp: float = 2.0,
+    momentum: float = 0.3,
+) -> Tuple[int, float]:
+    """
+    Enhanced entropy-aware sampling with momentum and trend tracking.
+    
+    Returns:
+        (token_id, adjusted_temperature)
+    """
+    probs = softmax(logits)
+    current_entropy = entropy_bits(probs)
+    
+    # Calculate entropy trend if we have history
+    entropy_trend = 0.0
+    if len(recent_entropies) >= 3:
+        # Simple linear trend: are we getting more or less entropic?
+        recent = recent_entropies[-3:]
+        entropy_trend = (recent[-1] - recent[0]) / len(recent)
+    
+    # Adaptive temperature with momentum
+    target_ratio = target_entropy / max(current_entropy, 0.1)
+    
+    # If entropy is trending away from target, be more aggressive
+    if entropy_trend > 0 and current_entropy > target_entropy:
+        # Entropy increasing and too high - cool down faster
+        target_ratio *= 1.2
+    elif entropy_trend < 0 and current_entropy < target_entropy:
+        # Entropy decreasing and too low - heat up faster
+        target_ratio *= 0.8
+    
+    # Apply momentum smoothing
+    if len(recent_entropies) > 0:
+        prev_temp = temperature
+        new_temp = np.clip(target_ratio, min_temp, max_temp)
+        adjusted_temp = momentum * prev_temp + (1 - momentum) * new_temp
+    else:
+        adjusted_temp = np.clip(target_ratio, min_temp, max_temp)
+    
+    adjusted_temp = float(np.clip(adjusted_temp, min_temp, max_temp))
+    
+    # Sample with adjusted temperature
+    token_id = sample_top_p(logits, 0.9, adjusted_temp, rng)
+    
+    return token_id, adjusted_temp
+
+
+# ----------------- poetic rhythm detection -----------------
+
+
+def detect_rhythm_pattern(
+    sequence: list,
+    vocab_decode_fn,
+    pattern_length: int = 4,
+) -> float:
+    """
+    Detect poetic rhythm in generated sequence.
+    
+    Returns rhythm score (0-1) based on:
+    - Punctuation patterns
+    - Length patterns
+    - Repetition structure
+    """
+    if len(sequence) < pattern_length:
+        return 0.0
+    
+    # Decode tokens to text for analysis
+    try:
+        text = vocab_decode_fn(sequence[-pattern_length * 4:])
+    except (TypeError, ValueError, AttributeError):
+        return 0.0
+    
+    # Count punctuation marks (rhythm indicators)
+    punct_marks = text.count('.') + text.count('!') + text.count('?') + text.count(',')
+    punct_score = min(1.0, punct_marks / (len(text) / 20.0))
+    
+    # Check for em-dashes (dialogue rhythm)
+    dialogue_score = min(1.0, text.count('—') / 2.0)
+    
+    # Simple rhythm score
+    rhythm_score = (punct_score + dialogue_score) / 2.0
+    
+    return float(rhythm_score)
+
+
+# ----------------- field coherence scoring -----------------
+
+
+def compute_coherence_score(
+    logits_history: list,
+    window_size: int = 10,
+) -> float:
+    """
+    Compute coherence score across recent generations.
+    
+    High coherence = consistent probability distributions
+    Low coherence = chaotic, unpredictable
+    
+    Returns score 0-1 where higher is more coherent.
+    """
+    if len(logits_history) < 2:
+        return 1.0
+    
+    recent = logits_history[-window_size:]
+    
+    if len(recent) < 2:
+        return 1.0
+    
+    # Compute pairwise resonance scores
+    resonances = []
+    for i in range(len(recent) - 1):
+        res = resonance_score(recent[i], recent[i + 1])
+        resonances.append(res)
+    
+    # High mean resonance = high coherence
+    coherence = float(np.mean(resonances)) if resonances else 1.0
+    
+    return coherence

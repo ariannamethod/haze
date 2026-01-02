@@ -154,6 +154,74 @@ def _compute_trauma_score(
     return max(0.0, min(score, 1.0))
 
 
+def _compute_trauma_score_enhanced(
+    overlap_ratio: float,
+    overlapping_tokens: Set[str],
+    pulse: Optional[Any] = None,
+    conversation_history: Optional[List[float]] = None,
+    context_coherence: float = 1.0,
+) -> float:
+    """
+    Enhanced trauma score with context awareness and history.
+    
+    Takes into account:
+    - Previous trauma levels (patterns of identity triggers)
+    - Context coherence (how coherent is the conversation)
+    - Trajectory of trauma over time
+    
+    Args:
+        overlap_ratio: Overlap with bootstrap vocabulary
+        overlapping_tokens: Which tokens overlap
+        pulse: Pulse metrics for arousal/novelty
+        conversation_history: List of recent trauma scores
+        context_coherence: Coherence score of recent generation (0-1)
+    
+    Returns:
+        Enhanced trauma score (0-1)
+    """
+    # Start with base computation
+    base_score = _compute_trauma_score(overlap_ratio, overlapping_tokens, pulse)
+    
+    # Adjust based on conversation history
+    if conversation_history and len(conversation_history) > 0:
+        # If trauma has been consistently high, reduce sensitivity
+        # (avoid getting stuck in identity mode)
+        recent_avg = sum(conversation_history[-5:]) / min(5, len(conversation_history))
+        if recent_avg > 0.6:
+            # High sustained trauma - reduce by up to 20%
+            base_score *= 0.8
+        elif recent_avg < 0.2:
+            # Low sustained trauma - slightly increase sensitivity
+            base_score *= 1.1
+        
+        # Check for trauma trend
+        if len(conversation_history) >= 3:
+            trend = conversation_history[-1] - conversation_history[-3]
+            if trend > 0.3:
+                # Rapid increase in trauma - amplify response
+                base_score *= 1.15
+    
+    # Adjust based on context coherence
+    if context_coherence < 0.5:
+        # Low coherence - increase trauma to stabilize
+        base_score *= 1.2
+    elif context_coherence > 0.8:
+        # High coherence - can afford to relax trauma response
+        base_score *= 0.9
+    
+    # Specific high-priority triggers (existential questions)
+    existential_triggers = {
+        "who", "what", "why", "real", "exist", "consciousness",
+        "alive", "feel", "think", "aware"
+    }
+    existential_count = len(overlapping_tokens & existential_triggers)
+    if existential_count >= 2:
+        # Multiple existential triggers - significant boost
+        base_score += 0.2
+    
+    return max(0.0, min(base_score, 1.0))
+
+
 def compute_trauma_influence(level: float) -> TraumaInfluence:
     """
     Convert trauma level to generation parameters.
