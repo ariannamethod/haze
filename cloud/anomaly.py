@@ -95,21 +95,21 @@ def detect_unresolved_confusion(
     arousal: float,
 ) -> Optional[AnomalyReport]:
     """
-    Detect unresolved confusion: low arousal + slow convergence.
+    Detect unresolved confusion: extremely low arousal + slow convergence.
 
     Indicates: ambivalence, indecision, "I don't know what I feel"
 
     Conditions:
-        - arousal < 0.3 (weak/mixed emotions)
+        - arousal < 0.10 (extremely weak/mixed emotions)
         - iterations > 8 (slow to stabilize)
     """
-    if arousal < 0.3 and iterations > 8:
+    if arousal < 0.10 and iterations > 8:
         severity = 1.0 - arousal  # lower arousal = higher severity
         return AnomalyReport(
             has_anomaly=True,
             anomaly_type="unresolved_confusion",
             severity=severity,
-            description="Weak emotions + slow convergence = unresolved ambivalence",
+            description="Extremely weak emotions + slow convergence = unresolved ambivalence",
         )
     return None
 
@@ -125,18 +125,18 @@ def detect_emotional_flatline(
     Indicates: severe apathy, depression, emotional shutdown
 
     Conditions:
-        - all chambers < 0.2
+        - all chambers < 0.05 (truly flat, no signal at all)
     """
-    all_low = all(v < 0.2 for v in chamber_activations.values())
+    all_low = all(v < 0.05 for v in chamber_activations.values())
 
     if all_low:
         max_activation = max(chamber_activations.values())
-        severity = 1.0 - max_activation / 0.2  # closer to 0 = worse
+        severity = 1.0 - max_activation / 0.05  # closer to 0 = worse
         return AnomalyReport(
             has_anomaly=True,
             anomaly_type="emotional_flatline",
             severity=severity,
-            description="All chambers < 0.2 = severe emotional flatline",
+            description="All chambers < 0.05 = severe emotional flatline",
         )
     return None
 
