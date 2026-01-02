@@ -228,6 +228,51 @@ async with AsyncBridge.create() as bridge:
 
 ---
 
+## examples (solo CLOUD)
+
+here's CLOUD detecting emotions without HAZE. just the sonar, no voice.
+
+```
+>>> cloud.ping_sync("I'm feeling terrified and anxious about everything")
+    Primary:    fear
+    Secondary:  uncertainty
+    Iterations: 10
+
+>>> cloud.ping_sync("You bring me such warmth and love, darling")
+    Primary:    warmth
+    Secondary:  tenderness
+    Iterations: 7
+
+>>> cloud.ping_sync("This makes me so angry I could explode")
+    Primary:    anger
+    Secondary:  fury
+    Iterations: 8
+
+>>> cloud.ping_sync("I feel completely empty and numb inside")
+    Primary:    emptiness
+    Secondary:  hollow
+    Iterations: 10
+
+>>> cloud.ping_sync("I'm curious about what happens next")
+    Primary:    curiosity
+    Secondary:  anticipation
+    Iterations: 5
+```
+
+**what's happening:**
+1. input text hits the **resonance layer** (100 emotion anchors)
+2. resonances feed into **4 chamber MLPs** (fear, love, rage, void)
+3. chambers **cross-fire** until they stabilize
+4. **meta-observer** predicts secondary emotion
+5. result: primary + secondary + convergence speed
+
+fast convergence (5 iter) = clear emotion
+slow convergence (10 iter) = mixed/ambivalent
+
+the secondary often reveals subtext. "warmth + tenderness" is different from "warmth + longing". same primary, different flavor.
+
+---
+
 ## the 100 anchors
 
 organized by chamber:

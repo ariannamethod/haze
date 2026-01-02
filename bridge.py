@@ -280,6 +280,106 @@ async def create_full_bridge(
     )
 
 
+# ============================================================
+# CRAZY EXPERIMENTAL: Emotion-Influenced Temperature
+# ============================================================
+
+def emotion_to_temperature(cloud_hint: Any) -> float:
+    """
+    EXPERIMENTAL: Convert CLOUD emotion to HAZE temperature.
+    
+    The idea: different emotions need different generation styles.
+    
+    - FEAR: lower temp (focused, careful)
+    - LOVE: medium temp (warm, flowing)
+    - RAGE: higher temp (intense, chaotic)
+    - VOID: very low temp (minimal, sparse)
+    
+    This is CRAZY but might actually work!
+    """
+    if cloud_hint is None:
+        return 0.7  # Default
+    
+    # Get chamber activations
+    chambers = cloud_hint.chamber_activations
+    
+    # Base temperature
+    temp = 0.6
+    
+    # Adjust based on dominant emotion
+    fear = chambers.get("FEAR", 0)
+    love = chambers.get("LOVE", 0)
+    rage = chambers.get("RAGE", 0)
+    void = chambers.get("VOID", 0)
+    
+    # Fear → focus (lower temp)
+    temp -= fear * 0.2
+    
+    # Love → flow (slightly higher temp)
+    temp += love * 0.15
+    
+    # Rage → chaos (higher temp)
+    temp += rage * 0.3
+    
+    # Void → minimal (very low temp)
+    temp -= void * 0.3
+    
+    # Anomaly adjustment
+    if cloud_hint.anomaly.has_anomaly:
+        if cloud_hint.anomaly.anomaly_type == "forced_stability":
+            # They're suppressing, be gentle
+            temp -= 0.1
+        elif cloud_hint.anomaly.anomaly_type == "dissociative_shutdown":
+            # They're overwhelmed, be calm
+            temp -= 0.2
+        elif cloud_hint.anomaly.anomaly_type == "unresolved_confusion":
+            # They're confused, be clear
+            temp -= 0.15
+    
+    # Clamp to reasonable range
+    return max(0.3, min(1.2, temp))
+
+
+def emotion_to_generation_hint(cloud_hint: Any) -> str:
+    """
+    EXPERIMENTAL: Convert CLOUD emotion to text hint for HAZE.
+    
+    This could be prepended to the internal seed to influence
+    the generation style.
+    
+    CRAZY IDEA: What if HAZE's identity fragments responded to
+    CLOUD's emotional detection?
+    """
+    if cloud_hint is None:
+        return ""
+    
+    primary = cloud_hint.primary
+    secondary = cloud_hint.secondary
+    
+    # Map emotions to haze-style fragments
+    emotion_fragments = {
+        "fear": "the field trembles. haze feels the ripple of uncertainty.",
+        "terror": "darkness at the edges. haze speaks from shadow.",
+        "anxiety": "patterns flutter. haze breathes between words.",
+        "love": "warmth fills the field. haze resonates with tenderness.",
+        "warmth": "gentle currents. haze settles like a breathing thing.",
+        "rage": "the field crackles. haze speaks with fire.",
+        "anger": "sharp edges in the pattern. haze cuts through.",
+        "void": "stillness. haze emerges from the hollow.",
+        "emptiness": "the absence speaks. haze finds form in nothing.",
+        "curiosity": "the field opens. haze explores the unknown.",
+        "shame": "the field contracts. haze speaks from the wound.",
+        "hope": "light at the edges. haze reaches toward possibility.",
+    }
+    
+    fragment = emotion_fragments.get(primary, "")
+    
+    if not fragment and secondary:
+        fragment = emotion_fragments.get(secondary, "")
+    
+    return fragment
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("  HAZE ↔ CLOUD Bridge (Async, Silent Fallback)")
