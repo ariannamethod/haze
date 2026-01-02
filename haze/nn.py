@@ -531,7 +531,7 @@ def sample_with_loop_avoidance(
         # Strong penalty for continuing the loop
         pattern = recent_tokens[-loop_length:]
         if pattern:
-            next_expected = pattern[0] if len(pattern) > 0 else None
+            next_expected = pattern[0]
             if next_expected is not None and 0 <= next_expected < len(logits_adjusted):
                 logits_adjusted[next_expected] -= penalty_strength * 10.0
     
@@ -626,7 +626,7 @@ def detect_rhythm_pattern(
     # Decode tokens to text for analysis
     try:
         text = vocab_decode_fn(sequence[-pattern_length * 4:])
-    except:
+    except (TypeError, ValueError, AttributeError):
         return 0.0
     
     # Count punctuation marks (rhythm indicators)

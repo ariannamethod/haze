@@ -14,6 +14,7 @@ Philosophy: The tokenizer IS the first layer of resonance.
 
 import asyncio
 import numpy as np
+import re
 from typing import Dict, List, Tuple, Optional, Set
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -26,6 +27,13 @@ try:
     from .rrpram import RRPRAMVocab, HAS_SENTENCEPIECE
 except ImportError:
     from rrpram import RRPRAMVocab, HAS_SENTENCEPIECE
+
+
+# Adaptive temperature thresholds
+ENTROPY_LOW_THRESHOLD = 0.5
+ENTROPY_HIGH_THRESHOLD = 1.5
+TEMP_INCREASE_FACTOR = 1.2
+TEMP_DECREASE_FACTOR = 0.8
 
 
 @dataclass
@@ -387,12 +395,12 @@ class SubwordField:
             current_temp = temperature
             if adaptive_temp and recent_entropies:
                 # Adjust based on entropy trend
-                if current_entropy < target_entropy * 0.5:
+                if current_entropy < target_entropy * ENTROPY_LOW_THRESHOLD:
                     # Too deterministic, increase temp
-                    current_temp = temperature * 1.2
-                elif current_entropy > target_entropy * 1.5:
+                    current_temp = temperature * TEMP_INCREASE_FACTOR
+                elif current_entropy > target_entropy * ENTROPY_HIGH_THRESHOLD:
                     # Too random, decrease temp
-                    current_temp = temperature * 0.8
+                    current_temp = temperature * TEMP_DECREASE_FACTOR
                 current_temp = np.clip(current_temp, 0.3, 2.0)
             
             # Sample with loop avoidance
@@ -421,7 +429,6 @@ class SubwordField:
         result = self.vocab.decode(generated)
         
         # Clean up unknown token markers
-        import re
         result = re.sub(r"(\w)⁇(t|s|m|d|ll|ve|re)\b", r"\1'\2", result)
         result = re.sub(r"(\w)\s*⁇\s*(t|s|m|d|ll|ve|re)\b", r"\1'\2", result)
         result = result.replace(' ⁇ ', ' ')
