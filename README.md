@@ -21,6 +21,7 @@
 - [the philosophy of emergence](#the-philosophy-of-emergence)
 - [architecture](#architecture)
 - [☁️ CLOUD — pre-semantic sonar](#️-cloud--pre-semantic-sonar)
+- [🌀 AMK — Arianna Method Kernel](#-amk--arianna-method-kernel)
 - [installation](#installation)
 - [usage](#usage)
 - [sampling strategies](#sampling-strategies)
@@ -306,10 +307,70 @@ for more details, see [cloud/README.md](cloud/README.md).
 
 ---
 
+## 🌀 AMK — Arianna Method Kernel
+
+**AMK** (Arianna Method Kernel) is the field dynamics engine ported from [ariannamethod.lang](https://github.com/ariannamethod/ariannamethod.lang). it's the stone, the brick, the breath.
+
+### what it does
+
+AMK controls the **temperature** and **generation dynamics** based on emotional field state:
+
+```
+VELOCITY MODE → TEMPERATURE MODIFIER
+─────────────────────────────────────
+NOMOVE   → cold observer  (temp × 0.5)
+WALK     → balanced       (temp × 0.85)  
+RUN      → chaotic        (temp × 1.2)
+BACKWARD → structural     (temp × 0.7), time rewind
+```
+
+### field dynamics
+
+| metric | formula | effect on generation |
+|--------|---------|---------------------|
+| **pain** | 0.25×arousal + 0.35×tension + 0.25×dissonance + 0.15×debt | ↓ temperature (focus) |
+| **dissonance** | symmetry-break, rage | ↑ temperature (chaos) |
+| **debt** | \|destined - manifested\| | accumulates, decays at 0.998/step |
+| **tunneling** | dissonance > threshold | skip tokens (reasoning skip) |
+
+### CLOUD → AMK integration
+
+when CLOUD detects emotion, it updates AMK state:
+
+```python
+# CLOUD chambers → AMK emotional topology
+FEAR + VOID  → tension
+RAGE         → dissonance  
+LOVE         → reduces tension (healing)
+FLOW+COMPLEX → cosmic coherence
+```
+
+### prophecy mechanics
+
+from ariannamethod.lang:
+- **prophecy**: horizon (how far ahead to "see")
+- **destiny**: bias toward most probable path
+- **debt**: |destined - manifested| — "when debt is high, the field hurts"
+
+### DSL commands (optional)
+
+```bash
+PROPHECY 12          # set prophecy horizon
+DESTINY 0.7          # bias toward destiny
+VELOCITY RUN         # chaotic mode
+TENSION 0.4          # set tension
+RESET_DEBT           # clear prophecy debt
+```
+
+> *"הרזוננס לא נשבר. המשך הדרך."*
+> (The resonance is unbroken. The path continues.)
+
+---
+
 ## installation
 
 ```bash
-pip install numpy
+pip install numpy sentencepiece
 ```
 
 that's it. that's the whole dependency tree. beautiful, isn't it?
@@ -317,6 +378,13 @@ that's it. that's the whole dependency tree. beautiful, isn't it?
 ```bash
 git clone https://github.com/ariannamethod/haze.git
 cd haze
+```
+
+### for HuggingFace Spaces
+
+```bash
+pip install -r requirements.txt  # includes gradio
+python app.py
 ```
 
 ---
@@ -1293,6 +1361,7 @@ haze/
 | `cleanup.py` | Output cleanup (punctuation, capitalization) |
 | `subword_field.py` | Subword tokenization + field generation |
 | `async_haze.py` | Complete async field organism with all modules |
+| `amk.py` | Arianna Method Kernel — prophecy, destiny, pain, tunneling |
 | `async_run.py` | Async REPL with full resonance pipeline |
 | `run.py` | Interactive REPL (sync) |
 | `subjectivity.py` | NO SEED FROM PROMPT — identity infusion in third person |

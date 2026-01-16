@@ -45,15 +45,6 @@ except ImportError as e:
     Cloud = None
     AsyncCloud = None
 
-# Import DSL
-try:
-    from haze.dsl import AriannaDSL, FieldState
-    HAS_DSL = True
-    print("[app] DSL module loaded (Arianna Method operators)")
-except ImportError:
-    HAS_DSL = False
-    AriannaDSL = None
-
 
 # ============================================================================
 # HAZE SESSION WITH FULL CLOUD INTEGRATION
@@ -74,16 +65,11 @@ class HazeSession:
            - Trauma module (identity anchoring)
            - Expert mixture (structural/semantic/creative/precise)
            - Co-occurrence field (pattern resonance)
-        
-        3. DSL — Arianna Method operators
-           - prophecy_debt tracking
-           - Emotional topology (pain, tension, dissonance)
     """
     
     def __init__(self):
         self.haze: Optional[AsyncHazeField] = None
         self.cloud: Optional[Cloud] = None
-        self.dsl: Optional[AriannaDSL] = None
         self.history: List[Tuple[str, str]] = []
         self.corpus_path = Path(__file__).parent / "haze" / "text.txt"
         self._initialized = False
@@ -130,11 +116,6 @@ class HazeSession:
             except Exception as e:
                 print(f"[app] CLOUD init failed: {e}")
                 self.cloud = None
-        
-        # Initialize DSL
-        if HAS_DSL:
-            self.dsl = AriannaDSL()
-            print(f"[app] DSL initialized (Arianna Method operators)")
         
         self._initialized = True
         print(f"[app] Session ready!")
@@ -187,42 +168,13 @@ class HazeSession:
             except Exception as e:
                 cloud_data = {"error": str(e)}
         
-        # ===== 2. UPDATE DSL STATE =====
-        dsl_data = {}
-        if self.dsl and cloud_response:
-            # Map CLOUD chambers to DSL emotional topology
-            chambers = cloud_response.chamber_activations
-            
-            # FEAR + VOID → increases pain
-            self.dsl.state.tension = chambers.get("FEAR", 0) * 0.5 + chambers.get("VOID", 0) * 0.3
-            
-            # RAGE → increases dissonance
-            self.dsl.state.dissonance = chambers.get("RAGE", 0) * 0.7
-            
-            # LOVE → increases resonance
-            self.dsl.state.resonance = chambers.get("LOVE", 0) * 0.8 + 0.2
-            
-            # FLOW + COMPLEX → affects emergence
-            self.dsl.state.emergence = (
-                chambers.get("FLOW", 0) * 0.5 + 
-                chambers.get("COMPLEX", 0) * 0.3
-            )
-            
-            # Compute composite pain
-            self.dsl.state.compute_pain()
-            
-            dsl_data = self.dsl.get_field_metrics()
+        # ===== 2. UPDATE HAZE AMK FROM CLOUD =====
+        # CLOUD chambers directly influence HAZE field dynamics
+        if cloud_response and cloud_response.chamber_activations:
+            self.haze.update_from_cloud(cloud_response.chamber_activations)
         
         # ===== 3. HAZE RESPOND =====
         response = await self.haze.respond(user_input)
-        
-        # ===== 4. TRACK PROPHECY DEBT =====
-        if self.dsl:
-            # prophecy_debt = |destined - manifested|
-            # Here we use resonance as proxy for "how well response matches destiny"
-            destined = self.dsl.state.resonance
-            manifested = 0.5 + len(response.text) / 500 * 0.3  # longer = more manifested
-            self.dsl.update_prophecy_debt(destined, manifested)
         
         # ===== BUILD METADATA =====
         metadata = {
@@ -236,10 +188,11 @@ class HazeSession:
         if cloud_data:
             metadata["cloud"] = cloud_data
         
-        if dsl_data:
-            metadata["dsl"] = dsl_data
-            metadata["prophecy_debt"] = self.dsl.state.prophecy_debt
-            metadata["pain"] = self.dsl.state.pain
+        # AMK state from response (now integrated into HAZE)
+        if response.amk_state:
+            metadata["amk"] = response.amk_state
+            metadata["prophecy_debt"] = response.amk_state.get("debt", 0)
+            metadata["pain"] = response.amk_state.get("pain", 0)
         
         if response.trauma:
             metadata["trauma_level"] = response.trauma.level

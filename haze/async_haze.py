@@ -35,8 +35,10 @@ try:
     from .trauma import AsyncTrauma, TraumaState, TraumaInfluence, get_identity_prefix
     from .subword_field import SubwordField, AsyncSubwordField
     from .mathbrain import AsyncMathBrain, FieldPerception
+    from .amk import AMK, AMKState, VelocityMode
     HAS_SUBWORD = True
     HAS_MATHBRAIN = True
+    HAS_AMK = True
 except ImportError:
     try:
         from haze import Vocab, PostGPT, load_corpus
@@ -49,11 +51,14 @@ except ImportError:
         from trauma import AsyncTrauma, TraumaState, TraumaInfluence, get_identity_prefix
         from subword_field import SubwordField, AsyncSubwordField
         from mathbrain import AsyncMathBrain, FieldPerception
+        from amk import AMK, AMKState, VelocityMode
         HAS_SUBWORD = True
         HAS_MATHBRAIN = True
+        HAS_AMK = True
     except ImportError:
         HAS_SUBWORD = False
         HAS_MATHBRAIN = False
+        HAS_AMK = False
 
 try:
     import aiosqlite
@@ -77,6 +82,7 @@ class HazeResponse:
     trauma: Optional[TraumaState] = None
     trauma_influence: Optional[TraumaInfluence] = None
     brain_perception: Optional["FieldPerception"] = None  # MathBrain perception
+    amk_state: Optional[dict] = None  # AMK field dynamics
     
     def __repr__(self) -> str:
         preview = self.text[:50] + "..." if len(self.text) > 50 else self.text
@@ -110,6 +116,7 @@ class AsyncHazeField:
         enable_trauma: bool = True,
         use_subword: bool = True,  # NEW: Use BPE subword tokenization
         subword_vocab_size: int = 500,
+        enable_amk: bool = True,  # NEW: Enable Arianna Method Kernel
     ):
         """
         Initialize async haze field.
@@ -124,6 +131,7 @@ class AsyncHazeField:
             enable_trauma: Enable resonant word trauma (identity return)
             use_subword: Use BPE subword tokenization (MUCH better output!)
             subword_vocab_size: Vocabulary size for BPE (default 500)
+            enable_amk: Enable Arianna Method Kernel (field dynamics)
         """
         self.corpus_path = Path(corpus_path)
         self.db_path = db_path
@@ -134,6 +142,7 @@ class AsyncHazeField:
         self.enable_trauma = enable_trauma
         self.use_subword = use_subword and HAS_SUBWORD
         self.subword_vocab_size = subword_vocab_size
+        self.enable_amk = enable_amk and HAS_AMK
         
         # Will be initialized in __aenter__
         self.corpus_text: str = ""
@@ -144,6 +153,7 @@ class AsyncHazeField:
         self.overthinking: Optional[AsyncOverthinking] = None
         self.lexicon: Optional[AsyncLexicon] = None
         self.trauma: Optional[AsyncTrauma] = None
+        self.amk: Optional["AMK"] = None  # Arianna Method Kernel
         
         # Master field lock
         self._field_lock = asyncio.Lock()
@@ -207,6 +217,12 @@ class AsyncHazeField:
         # Initialize trauma (resonant words return to identity)
         if self.enable_trauma:
             self.trauma = AsyncTrauma()
+        
+        # Initialize AMK (Arianna Method Kernel — field dynamics)
+        if self.enable_amk and HAS_AMK:
+            self.amk = AMK()
+            self.amk.state.base_temperature = self.base_temperature
+            self.amk._update_effective_temp()
         
         return self
     
@@ -277,6 +293,33 @@ class AsyncHazeField:
             else:
                 # Fallback to subjectivity's temperature adjustment
                 adjusted_temp = await self.subjectivity.adjust_temperature(pulse)
+            
+            # 3b. AMK MODULATION — Arianna Method Kernel affects temperature
+            # This is THE KEY integration: field dynamics influence generation
+            amk_state_dict = None
+            if self.amk:
+                # Update AMK with pulse data
+                self.amk.state.tension = pulse.arousal * 0.5
+                self.amk.state.dissonance = abs(pulse.novelty - 0.5) * 2 * 0.3
+                self.amk.compute_pain()
+                
+                # Get AMK temperature (incorporates velocity, pain, dissonance)
+                amk_temp = self.amk.get_temperature()
+                
+                # Blend: 70% expert/base temp + 30% AMK modulation
+                adjusted_temp = adjusted_temp * 0.7 + amk_temp * 0.3
+                
+                # Apply tunneling if dissonance is high
+                if self.amk.should_tunnel():
+                    # Skip ahead — increase generation length slightly
+                    skip = self.amk.get_tunnel_skip()
+                    length = min(length + skip * 5, 500)
+                
+                # Step the kernel forward
+                self.amk.step(1.0)
+                
+                # Save state for response
+                amk_state_dict = self.amk.get_state_dict()
             
             # 4. GENERATE FROM FIELD (pure resonance)
             if self.use_subword and self.subword_field is not None:
@@ -360,6 +403,14 @@ class AsyncHazeField:
             # 9. WRINKLE THE FIELD (update subjectivity)
             await self.subjectivity.wrinkle_field(user_input, text)
             
+            # 9b. UPDATE PROPHECY DEBT (AMK tracking)
+            if self.amk:
+                # prophecy_debt = |destined - manifested|
+                # destined = expected length/quality, manifested = actual
+                destined = self.amk.state.destiny
+                manifested = min(1.0, len(text) / 200)  # normalize by expected length
+                self.amk.update_debt(destined, manifested)
+            
             self.turn_count += 1
         
         generation_time = time.time() - start_time
@@ -376,6 +427,7 @@ class AsyncHazeField:
             expert_mixture=expert_mixture,
             trauma=trauma_state,
             trauma_influence=trauma_influence,
+            amk_state=amk_state_dict,
         )
     
     async def get_stats(self) -> Dict:
@@ -404,6 +456,20 @@ class AsyncHazeField:
             }
         
         return stats
+    
+    def update_from_cloud(self, chamber_activations: dict):
+        """
+        Update AMK state from CLOUD chamber activations.
+        
+        This allows CLOUD's pre-semantic emotion detection to
+        influence HAZE's field dynamics.
+        
+        Args:
+            chamber_activations: dict of chamber → activation value
+                e.g., {"FEAR": 0.6, "LOVE": 0.2, "RAGE": 0.4, ...}
+        """
+        if self.amk:
+            self.amk.update_from_cloud(chamber_activations)
 
 
 async def demo_async_haze():
