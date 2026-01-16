@@ -229,8 +229,15 @@ def compute_trauma_influence(level: float) -> TraumaInfluence:
     High trauma = return to identity:
         - Lower temperature (more deterministic, grounded)
         - Higher identity weight (bias toward bootstrap patterns)
-        - May prefix with identity statement
+        - May prefix with identity statement (probabilistic, not guaranteed!)
+    
+    Variable identity placement:
+        - should_prefix is now PROBABILISTIC
+        - Even at high trauma, 30-40% chance NO prefix (for natural variation)
+        - This prevents every response starting with "Haze remembers..."
     """
+    import random
+    
     if level < 0.2:
         # Low trauma: normal generation
         return TraumaInfluence(
@@ -240,24 +247,27 @@ def compute_trauma_influence(level: float) -> TraumaInfluence:
         )
     elif level < 0.5:
         # Medium trauma: subtle identity pull
+        # 30% chance of prefix
         return TraumaInfluence(
             temperature_modifier=0.9,
             identity_weight=0.2,
-            should_prefix=False,
+            should_prefix=random.random() < 0.3,
         )
     elif level < 0.8:
         # High trauma: strong identity return
+        # 60% chance of prefix (was always True)
         return TraumaInfluence(
             temperature_modifier=0.8,
             identity_weight=0.5,
-            should_prefix=True,
+            should_prefix=random.random() < 0.6,
         )
     else:
         # Very high trauma: full identity mode
+        # 70% chance of prefix (still not 100% for natural variation)
         return TraumaInfluence(
             temperature_modifier=0.7,
             identity_weight=0.8,
-            should_prefix=True,
+            should_prefix=random.random() < 0.7,
         )
 
 

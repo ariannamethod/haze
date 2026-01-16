@@ -63,10 +63,13 @@ EMOTION_ANCHORS: Dict[str, List[str]] = {
     ],
 }
 
-# Chamber names (for indexing)
+# Chamber names (for indexing) - original 4 chambers
 CHAMBER_NAMES = ["FEAR", "LOVE", "RAGE", "VOID"]
 
-# Coupling matrix: how chambers influence each other
+# Extended chamber names (6 chambers for 200K model)
+CHAMBER_NAMES_EXTENDED = ["FEAR", "LOVE", "RAGE", "VOID", "FLOW", "COMPLEX"]
+
+# Coupling matrix: how chambers influence each other (original 4x4)
 # Rows = influence FROM, Cols = influence TO
 # Format: [FEAR, LOVE, RAGE, VOID]
 COUPLING_MATRIX = [
@@ -75,6 +78,19 @@ COUPLING_MATRIX = [
     [    -0.3,   0.0,  -0.6,  -0.5  ],  # LOVE → suppresses fear, rage & void
     [    +0.3,  -0.4,   0.0,  +0.2  ],  # RAGE → feeds fear, suppresses love, feeds void
     [    +0.5,  -0.7,  +0.3,   0.0  ],  # VOID → feeds fear & rage, kills love
+]
+
+# Extended coupling matrix (6x6) for FLOW and COMPLEX chambers
+# FLOW: curiosity, transition — dampens extremes, feeds exploration
+# COMPLEX: shame, guilt, pride — interacts with all, especially love/void
+COUPLING_MATRIX_EXTENDED = [
+    #     FEAR   LOVE   RAGE   VOID   FLOW   CMPLX
+    [     0.0,  -0.3,  +0.6,  +0.4,  -0.2,  +0.3  ],  # FEAR → feeds complex (shame from fear)
+    [    -0.3,   0.0,  -0.6,  -0.5,  +0.3,  +0.4  ],  # LOVE → feeds flow & complex (hope, gratitude)
+    [    +0.3,  -0.4,   0.0,  +0.2,  -0.3,  +0.2  ],  # RAGE → suppresses flow, feeds complex (guilt)
+    [    +0.5,  -0.7,  +0.3,   0.0,  -0.4,  +0.5  ],  # VOID → kills flow, feeds complex (melancholy)
+    [    -0.2,  +0.2,  -0.2,  -0.3,   0.0,  +0.2  ],  # FLOW → dampens extremes, curiosity heals
+    [    +0.3,  +0.2,  +0.2,  +0.3,  +0.1,   0.0  ],  # COMPLEX → feeds all slightly (ripple effect)
 ]
 
 
@@ -132,9 +148,12 @@ def get_chamber_for_anchor(anchor: str) -> str:
 
 # Sanity check
 assert len(get_all_anchors()) == 100, "Must have exactly 100 anchors"
-assert len(CHAMBER_NAMES) == 4, "Must have exactly 4 chambers"
+assert len(CHAMBER_NAMES) == 4, "Must have exactly 4 base chambers"
+assert len(CHAMBER_NAMES_EXTENDED) == 6, "Must have exactly 6 extended chambers"
 assert len(COUPLING_MATRIX) == 4, "Coupling matrix must be 4x4"
 assert all(len(row) == 4 for row in COUPLING_MATRIX), "Coupling matrix must be 4x4"
+assert len(COUPLING_MATRIX_EXTENDED) == 6, "Extended coupling matrix must be 6x6"
+assert all(len(row) == 6 for row in COUPLING_MATRIX_EXTENDED), "Extended coupling matrix must be 6x6"
 
 
 if __name__ == "__main__":

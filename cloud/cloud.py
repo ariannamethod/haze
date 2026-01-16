@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# cloud.py — CLOUD v3.0 Main Orchestrator
+# cloud.py — CLOUD v4.0 Main Orchestrator (200K model)
 #
 # "Something fires BEFORE meaning arrives"
 #
 # Architecture:
 #   1. RESONANCE LAYER (weightless geometry) → 100D resonances
-#   2. CHAMBER LAYER (4 MLPs + cross-fire) → chamber activations + iterations
-#   3. META-OBSERVER (tiny MLP) → secondary emotion
+#   2. CHAMBER LAYER (6 MLPs + cross-fire) → chamber activations + iterations
+#   3. META-OBSERVER (deeper MLP) → secondary emotion
 #
-# Total: ~50K params
+# Total: ~180K params (6 chambers × 23K + observer 41K)
 
 from __future__ import annotations
 import asyncio
@@ -131,10 +131,18 @@ class Cloud:
         # 3. User fingerprint (temporal history)
         user_fingerprint = self.user_cloud.get_fingerprint()
 
-        # 4. Meta-observer predicts secondary
+        # 4. Meta-observer predicts secondary (now with chamber_activations)
+        # Convert chamber_activations dict to array for observer
+        import numpy as np
+        from .anchors import CHAMBER_NAMES_EXTENDED
+        chamber_array = np.array([
+            chamber_activations.get(name, 0.0) for name in CHAMBER_NAMES_EXTENDED
+        ], dtype=np.float32)
+        
         secondary_idx = await asyncio.to_thread(
             self.observer.predict_secondary,
             resonances,
+            chamber_array,
             float(iterations),
             user_fingerprint,
         )

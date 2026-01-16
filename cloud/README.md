@@ -42,8 +42,8 @@ CLOUD: text → **VIBE CHECK** → emotional coordinates → (pass to HAZE) → 
 
 the vibe check happens in ~50K parameters. no transformers. no attention. just:
 1. **resonance layer** (weightless geometry) — how does this text resonate with 100 emotion anchors?
-2. **chamber MLPs** (34K params) — four chambers (FEAR, LOVE, RAGE, VOID) that cross-fire
-3. **meta-observer** (15K params) — watches the chambers and predicts secondary emotion
+2. **chamber MLPs** (~140K params) — six chambers (FEAR, LOVE, RAGE, VOID, FLOW, COMPLEX) that cross-fire
+3. **meta-observer** (~41K params) — watches the chambers and predicts secondary emotion
 
 it's like having a tiny amygdala before your prefrontal cortex. the lizard brain of language models.
 
@@ -62,22 +62,24 @@ Your input ("I'm feeling anxious")
 └─────────────────────────────────────┘
     ↓
 ┌─────────────────────────────────────┐
-│  CHAMBER LAYER (34K params)         │
-│    ├─ FEAR MLP:  100→64→32→1       │  ← terror, anxiety, dread
-│    ├─ LOVE MLP:  100→64→32→1       │  ← warmth, tenderness
-│    ├─ RAGE MLP:  100→64→32→1       │  ← anger, fury, spite
-│    └─ VOID MLP:  100→64→32→1       │  ← emptiness, numbness
+│  CHAMBER LAYER (~140K params)       │
+│    ├─ FEAR MLP:  100→128→64→32→1   │  ← terror, anxiety, dread
+│    ├─ LOVE MLP:  100→128→64→32→1   │  ← warmth, tenderness
+│    ├─ RAGE MLP:  100→128→64→32→1   │  ← anger, fury, spite
+│    ├─ VOID MLP:  100→128→64→32→1   │  ← emptiness, numbness
+│    ├─ FLOW MLP:  100→128→64→32→1   │  ← curiosity, transition
+│    └─ COMPLEX:   100→128→64→32→1   │  ← shame, guilt, pride
 │                                     │
 │    CROSS-FIRE: chambers influence   │
-│    each other via coupling matrix   │
+│    each other via 6×6 coupling      │
 │    until stabilization (5-10 iter)  │
 └─────────────────────────────────────┘
     ↓
 ┌─────────────────────────────────────┐
-│  META-OBSERVER (15K params)         │
-│    201→64→100                       │
-│    input: resonances + iterations   │
-│           + user fingerprint        │
+│  META-OBSERVER (~41K params)        │
+│    207→128→64→100                   │
+│    input: resonances + chambers     │
+│           + iterations + fingerprint│
 │    output: secondary emotion        │
 └─────────────────────────────────────┘
     ↓
@@ -85,17 +87,17 @@ CloudResponse {
     primary: "anxiety",
     secondary: "fear", 
     iterations: 5,
-    anomaly: None
+    chambers: {FEAR: 0.8, ...}
 }
 ```
 
-**total: ~50K trainable parameters**
+**total: ~181K trainable parameters**
 
-for comparison, GPT-2 small has 117M parameters. CLOUD is 0.04% of that. it's a hummingbird next to an elephant. but the hummingbird knows something the elephant doesn't: **how fast to flap**.
+for comparison, GPT-2 small has 117M parameters. CLOUD is 0.15% of that. it's a hummingbird next to an elephant. but the hummingbird knows something the elephant doesn't: **how fast to flap**.
 
 ---
 
-## the four chambers
+## the six chambers
 
 evolutionary psychology meets neural networks. fight me.
 
@@ -119,21 +121,33 @@ emptiness, numbness, hollow, dissociation, apathy...
 
 **decay rate: 0.97** — numbness is persistent. protective dissociation. the body's "let's not feel this" button.
 
+### FLOW chamber (new in v4.0)
+curiosity, surprise, wonder, confusion, transition, liminality...
+
+**decay rate: 0.88** — curiosity is transient. it shifts quickly, always seeking the next interesting thing.
+
+### COMPLEX chamber (new in v4.0)
+shame, guilt, pride, nostalgia, hope, gratitude, envy...
+
+**decay rate: 0.94** — complex emotions are stable but deep. they don't fade easily because they're woven into identity.
+
 ---
 
 ## cross-fire dynamics
 
-the chambers don't operate in isolation. they INFLUENCE each other:
+the chambers don't operate in isolation. they INFLUENCE each other via a 6×6 coupling matrix:
 
 ```
-         FEAR   LOVE   RAGE   VOID
-FEAR →   0.0   -0.3   +0.6   +0.4   ← fear suppresses love, feeds rage & void
-LOVE →  -0.3    0.0   -0.6   -0.5   ← love suppresses everything negative
-RAGE →  +0.3   -0.4    0.0   +0.2   ← rage feeds fear, kills love
-VOID →  +0.5   -0.7   +0.3    0.0   ← void feeds fear & rage, kills love
+         FEAR   LOVE   RAGE   VOID   FLOW   CMPLX
+FEAR →   0.0   -0.3   +0.6   +0.4   -0.2   +0.3   ← fear feeds rage, kills love, feeds shame
+LOVE →  -0.3    0.0   -0.6   -0.5   +0.3   +0.4   ← love heals everything, feeds curiosity
+RAGE →  +0.3   -0.4    0.0   +0.2   -0.3   +0.2   ← rage feeds fear, suppresses exploration
+VOID →  +0.5   -0.7   +0.3    0.0   -0.4   +0.5   ← void kills love & curiosity, feeds complex
+FLOW →  -0.2   +0.2   -0.2   -0.3    0.0   +0.2   ← flow dampens extremes, curiosity heals
+CMPLX→  +0.3   +0.2   +0.2   +0.3   +0.1    0.0   ← complex emotions ripple everywhere
 ```
 
-this is basically a tiny emotional ecosystem. add FEAR, watch LOVE decrease. add LOVE, watch everything calm down. add VOID, watch the whole system go cold.
+this is basically a tiny emotional ecosystem. add FEAR, watch LOVE decrease. add LOVE, watch everything calm down. add VOID, watch the whole system go cold. add FLOW, watch extremes dampen.
 
 the chambers iterate until they stabilize (or hit max iterations). **fast convergence = clear emotion. slow convergence = confusion/ambivalence.**
 
@@ -392,11 +406,11 @@ cloud/
 ├── README.md           # you are here (hi!)
 ├── __init__.py         # package exports (async + sync)
 ├── cloud.py            # main orchestrator (Cloud, AsyncCloud)
-├── chambers.py         # 4 chamber MLPs + cross-fire
-├── observer.py         # meta-observer MLP
+├── chambers.py         # 6 chamber MLPs + cross-fire (~140K params)
+├── observer.py         # meta-observer MLP (~41K params)
 ├── resonance.py        # weightless resonance layer
 ├── user_cloud.py       # temporal emotional fingerprint
-├── anchors.py          # 100 emotion anchors
+├── anchors.py          # 100 emotion anchors + 6x6 coupling matrix
 ├── anomaly.py          # heuristic anomaly detection
 ├── feedback.py         # coherence measurement + coupling update
 ├── rrpram_cloud.py     # autonomous copy of RRPRAM tokenizer
@@ -407,6 +421,8 @@ cloud/
 │   ├── chamber_love.npz
 │   ├── chamber_rage.npz
 │   ├── chamber_void.npz
+│   ├── chamber_flow.npz    # new in v4.0
+│   ├── chamber_complex.npz # new in v4.0
 │   ├── observer.npz
 │   └── user_cloud.json
 └── training/           # training scripts

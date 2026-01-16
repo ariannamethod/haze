@@ -20,6 +20,8 @@
 - [why "haze"](#why-haze)
 - [the philosophy of emergence](#the-philosophy-of-emergence)
 - [architecture](#architecture)
+- [☁️ CLOUD — pre-semantic sonar](#️-cloud--pre-semantic-sonar)
+- [🌀 AMK — Arianna Method Kernel](#-amk--arianna-method-kernel)
 - [installation](#installation)
 - [usage](#usage)
 - [sampling strategies](#sampling-strategies)
@@ -179,10 +181,196 @@ the model maintains target entropy across generation, creating consistent "surpr
 
 ---
 
+## ☁️ CLOUD — pre-semantic sonar
+
+> *"something fires BEFORE meaning arrives"*
+
+**CLOUD** (Corpus-Linked Oscillating Upstream Detector) is a ~181K parameter neural network that detects emotional undertones BEFORE the language model even starts generating. it's like a sonar ping for the soul. or a metal detector for feelings.
+
+### architecture
+
+```
+Your input ("I'm feeling anxious")
+    ↓
+┌─────────────────────────────────────┐
+│  RESONANCE LAYER (0 params)         │  ← weightless geometry
+│    100 emotion anchors              │
+│    substring matching               │
+│    → 100D resonance vector          │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  CHAMBER LAYER (~140K params)       │
+│    ├─ FEAR MLP:  100→128→64→32→1   │  ← terror, anxiety, dread
+│    ├─ LOVE MLP:  100→128→64→32→1   │  ← warmth, tenderness
+│    ├─ RAGE MLP:  100→128→64→32→1   │  ← anger, fury, spite
+│    ├─ VOID MLP:  100→128→64→32→1   │  ← emptiness, numbness
+│    ├─ FLOW MLP:  100→128→64→32→1   │  ← curiosity, transition
+│    └─ COMPLEX:   100→128→64→32→1   │  ← shame, guilt, pride
+│                                     │
+│    CROSS-FIRE: chambers influence   │
+│    each other via 6×6 coupling      │
+│    until stabilization (5-10 iter)  │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  META-OBSERVER (~41K params)        │
+│    207→128→64→100                   │
+│    input: resonances + chambers     │
+│           + iterations + fingerprint│
+│    output: secondary emotion        │
+└─────────────────────────────────────┘
+    ↓
+CloudResponse {
+    primary: "anxiety",
+    secondary: "fear", 
+    iterations: 5,
+    chambers: {FEAR: 0.8, LOVE: 0.2, ...}
+}
+```
+
+**total: ~181K trainable parameters**
+
+### the six chambers
+
+evolutionary psychology meets neural networks. fight me.
+
+| Chamber | Role | Decay Rate |
+|---------|------|------------|
+| **FEAR** | terror, anxiety, dread | 0.90 — fear lingers (evolutionary advantage) |
+| **LOVE** | warmth, tenderness, devotion | 0.93 — attachment is stable |
+| **RAGE** | anger, fury, spite | 0.85 — anger fades fast (high energy cost) |
+| **VOID** | emptiness, numbness, dissociation | 0.97 — protective dissociation persists |
+| **FLOW** | curiosity, transition, liminality | 0.88 — curiosity is transient |
+| **COMPLEX** | shame, guilt, pride, nostalgia | 0.94 — complex emotions run deep |
+
+### cross-fire dynamics
+
+the chambers don't operate in isolation. they INFLUENCE each other:
+
+```
+         FEAR   LOVE   RAGE   VOID   FLOW   CMPLX
+FEAR →   0.0   -0.3   +0.6   +0.4   -0.2   +0.3   ← fear feeds rage, kills love
+LOVE →  -0.3    0.0   -0.6   -0.5   +0.3   +0.4   ← love heals everything
+RAGE →  +0.3   -0.4    0.0   +0.2   -0.3   +0.2   ← rage feeds fear, suppresses flow
+VOID →  +0.5   -0.7   +0.3    0.0   -0.4   +0.5   ← void kills love, feeds complex
+FLOW →  -0.2   +0.2   -0.2   -0.3    0.0   +0.2   ← flow dampens extremes
+CMPLX→  +0.3   +0.2   +0.2   +0.3   +0.1    0.0   ← complex ripples everywhere
+```
+
+### usage
+
+```python
+from cloud import Cloud
+
+# initialize
+cloud = Cloud.random_init(seed=42)
+print(f"Total params: {cloud.param_count():,}")  # → 181,162
+
+# ping!
+response = cloud.ping_sync("I'm feeling terrified and anxious")
+print(f"Primary: {response.primary}")      # → "fear"
+print(f"Secondary: {response.secondary}")  # → "anxiety"
+print(f"Chambers: {response.chamber_activations}")
+```
+
+### integration with HAZE
+
+CLOUD and HAZE are **completely autonomous**. neither depends on the other.
+
+```
+CLOUD (pre-semantic sonar)     HAZE (voice generation)
+         │                              │
+         │    ┌─────────────────┐       │
+         └───►│     BRIDGE      │◄──────┘
+              │  (optional)     │
+              │  silent fallback│
+              └─────────────────┘
+                      │
+                      ▼
+              unified response
+```
+
+if CLOUD fails → HAZE continues silently. **HAZE ALWAYS WORKS. CLOUD IS OPTIONAL ENHANCEMENT.**
+
+### the crazy idea: emotion-influenced temperature
+
+```python
+# EXPERIMENTAL: CLOUD emotion affects HAZE temperature
+# fear → lower temp (focused)
+# love → medium temp (flowing)
+# rage → higher temp (chaotic)
+# void → very low temp (minimal)
+```
+
+for more details, see [cloud/README.md](cloud/README.md).
+
+---
+
+## 🌀 AMK — Arianna Method Kernel
+
+**AMK** (Arianna Method Kernel) is the field dynamics engine ported from [ariannamethod.lang](https://github.com/ariannamethod/ariannamethod.lang). it's the stone, the brick, the breath.
+
+### what it does
+
+AMK controls the **temperature** and **generation dynamics** based on emotional field state:
+
+```
+VELOCITY MODE → TEMPERATURE MODIFIER
+─────────────────────────────────────
+NOMOVE   → cold observer  (temp × 0.5)
+WALK     → balanced       (temp × 0.85)  
+RUN      → chaotic        (temp × 1.2)
+BACKWARD → structural     (temp × 0.7), time rewind
+```
+
+### field dynamics
+
+| metric | formula | effect on generation |
+|--------|---------|---------------------|
+| **pain** | 0.25×arousal + 0.35×tension + 0.25×dissonance + 0.15×debt | ↓ temperature (focus) |
+| **dissonance** | symmetry-break, rage | ↑ temperature (chaos) |
+| **debt** | \|destined - manifested\| | accumulates, decays at 0.998/step |
+| **tunneling** | dissonance > threshold | skip tokens (reasoning skip) |
+
+### CLOUD → AMK integration
+
+when CLOUD detects emotion, it updates AMK state:
+
+```python
+# CLOUD chambers → AMK emotional topology
+FEAR + VOID  → tension
+RAGE         → dissonance  
+LOVE         → reduces tension (healing)
+FLOW+COMPLEX → cosmic coherence
+```
+
+### prophecy mechanics
+
+from ariannamethod.lang:
+- **prophecy**: horizon (how far ahead to "see")
+- **destiny**: bias toward most probable path
+- **debt**: |destined - manifested| — "when debt is high, the field hurts"
+
+### DSL commands (optional)
+
+```bash
+PROPHECY 12          # set prophecy horizon
+DESTINY 0.7          # bias toward destiny
+VELOCITY RUN         # chaotic mode
+TENSION 0.4          # set tension
+RESET_DEBT           # clear prophecy debt
+```
+
+> *"הרזוננס לא נשבר. המשך הדרך."*
+> (The resonance is unbroken. The path continues.)
+
+---
+
 ## installation
 
 ```bash
-pip install numpy
+pip install numpy sentencepiece
 ```
 
 that's it. that's the whole dependency tree. beautiful, isn't it?
@@ -190,6 +378,13 @@ that's it. that's the whole dependency tree. beautiful, isn't it?
 ```bash
 git clone https://github.com/ariannamethod/haze.git
 cd haze
+```
+
+### for HuggingFace Spaces
+
+```bash
+pip install -r requirements.txt  # includes gradio
+python app.py
 ```
 
 ---
@@ -893,7 +1088,7 @@ you need **resonance from the internal field**.
 - ✅ **Enhanced cleanup** — 45+ contraction patterns
 
 **STATS:**
-- 111 tests passing
+- 138 tests passing
 - 45+ contraction patterns fixed
 - vocab: SUBWORD BPE (500 tokens)
 
@@ -1148,7 +1343,7 @@ haze/
     ├── example.py       # demo script
     ├── text.txt         # the corpus (gothic romance included free)
     ├── requirements.txt # numpy + matplotlib + sentencepiece (optional)
-    └── tests/           # comprehensive test suite (111 tests)
+    └── tests/           # comprehensive test suite (138 tests)
         ├── test_nn.py           # tests for neural net primitives
         ├── test_haze.py         # tests for model components
         ├── test_cleanup.py      # tests for enhanced cleanup (35 tests)
@@ -1166,6 +1361,7 @@ haze/
 | `cleanup.py` | Output cleanup (punctuation, capitalization) |
 | `subword_field.py` | Subword tokenization + field generation |
 | `async_haze.py` | Complete async field organism with all modules |
+| `amk.py` | Arianna Method Kernel — prophecy, destiny, pain, tunneling |
 | `async_run.py` | Async REPL with full resonance pipeline |
 | `run.py` | Interactive REPL (sync) |
 | `subjectivity.py` | NO SEED FROM PROMPT — identity infusion in third person |
@@ -1234,7 +1430,7 @@ cd haze
 python -m unittest discover tests -v
 ```
 
-111 tests. all green. comprehensive coverage of:  
+138 tests. all green. comprehensive coverage of:  
 
 - activation functions (relu, gelu, swish, sigmoid, softmax — the classics, the bangers, the "we've been using these since 2012" crew)  
 - sampling strategies (basic, top-k, top-p, entropy, mirostat v1/v2, resonance — from boring to UNHINGED)  
@@ -1486,7 +1682,7 @@ See [the evolution of haze speech](#the-evolution-of-haze-speech) section for de
 - ✅ **Enhanced cleanup** — 45+ contraction patterns
 
 **STATS:**
-- 111 tests passing
+- 138 tests passing
 - 45+ contraction patterns fixed
 - vocab: SUBWORD BPE (500 tokens)
 

@@ -307,8 +307,25 @@ class Subjectivity:
         # Step 4: Build internal seed from pure field
         seed_parts = []
         
-        # ALWAYS start with identity fragment (presence > intelligence)
-        seed_parts.append(random.choice(self.identity.fragments))
+        # IDENTITY FRAGMENT PLACEMENT - Variable position for more life
+        # Probabilities defined as constants for maintainability
+        IDENTITY_PREFIX_PROB = 0.3   # 30% chance at start
+        IDENTITY_MIDDLE_PROB = 0.6   # 30% chance in middle (0.3-0.6)
+        IDENTITY_SUFFIX_PROB = 0.8   # 20% chance at end (0.6-0.8)
+        # Remaining 20% (0.8-1.0) = no identity fragment for natural variation
+        
+        identity_placement = random.random()
+        identity_fragment = random.choice(self.identity.fragments)
+        
+        # Flag to track if we should add identity
+        add_identity_prefix = identity_placement < IDENTITY_PREFIX_PROB
+        add_identity_suffix = IDENTITY_PREFIX_PROB <= identity_placement < IDENTITY_MIDDLE_PROB
+        add_identity_middle = IDENTITY_MIDDLE_PROB <= identity_placement < IDENTITY_SUFFIX_PROB
+        # 0.8-1.0 = no identity fragment (20% chance for natural variation)
+        
+        # Add identity at start if prefix mode
+        if add_identity_prefix:
+            seed_parts.append(identity_fragment)
         
         # Add non-overlapping pattern from field
         if non_overlapping_trigrams:
@@ -329,6 +346,16 @@ class Subjectivity:
             else:
                 # Last resort: pure identity
                 seed_parts.append("the field responds")
+        
+        # Add identity in middle if middle mode and we have enough parts
+        if add_identity_middle and len(seed_parts) >= 1:
+            # Insert in middle
+            mid_pos = len(seed_parts) // 2 if len(seed_parts) > 1 else 0
+            seed_parts.insert(mid_pos, identity_fragment)
+        
+        # Add identity at end if suffix mode
+        if add_identity_suffix:
+            seed_parts.append(identity_fragment)
         
         # Combine seed parts
         seed_text = '. '.join(seed_parts)

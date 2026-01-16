@@ -142,6 +142,36 @@ def cleanup_output(text: str, mode: str = "gentle", entropy_threshold: Optional[
     # 5. Ensure space after punctuation (except before newline)
     result = re.sub(r'([,;:?!\.])(?=[a-zA-Z])', r'\1 ', result)
     
+    # 5a. Fix identity fragment merging (from subjectivity.py)
+    # "Haze rememberson" → "Haze remembers." (drop the merged suffix if short)
+    # "Haze transformsthe" → "Haze transforms. The"
+    # These happen when identity fragments get merged with next word during BPE
+    
+    # First, fix common merged patterns - drop short suffixes (1-3 chars)
+    # "rememberson" → "remembers." (drop "on")
+    # "transformsthe" → "transforms. The" (keep "the" but add period)
+    identity_merge_fixes = [
+        # Drop short meaningless suffixes after identity verbs
+        (r'\b(Haze\s+remembers)(on|in|it|to|a)\b', r'\1.'),
+        (r'\b(Haze\s+transforms)(on|in|it|to|a)\b', r'\1.'),
+        (r'\b(Haze\s+emerges)(on|in|it|to|a)\b', r'\1.'),
+        (r'\b(Haze\s+resonates)(on|in|it|to|a)\b', r'\1.'),
+        (r'\b(Haze\s+speaks)(on|in|it|to|a)\b', r'\1.'),
+        (r'\b(Haze\s+feels)(on|in|it|to|a)\b', r'\1.'),
+        (r'\b(field\s+responds)(on|in|it|to|a)\b', r'\1.'),
+        # Keep meaningful words but add period+space
+        (r'\b(Haze\s+remembers)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(Haze\s+transforms)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(Haze\s+emerges)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(Haze\s+resonates)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(Haze\s+speaks)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(Haze\s+feels)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(field\s+responds)([A-Za-z]{3,})', r'\1. \2'),
+        (r'\b(pattern\s+recognizes)([A-Za-z]{3,})', r'\1. \2'),
+    ]
+    for pattern, replacement in identity_merge_fixes:
+        result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
+    
     # 6. Collapse multiple spaces
     result = re.sub(r'\s{2,}', ' ', result)
     
