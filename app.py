@@ -342,7 +342,8 @@ def create_interface():
     except ImportError:
         print("[error] gradio not installed. Run: pip install gradio")
         return None
-    
+
+    from gradio import ChatMessage
     # Custom CSS for dark gothic theme
     custom_css = """
     .gradio-container {
@@ -428,8 +429,7 @@ def create_interface():
         
         def chat(message, history):
             response, metadata = respond(message, history)
-            history = history + [{"role": "user", "content": message}, {"role": "assistant", "content": response}]
-            return "", history, metadata
+    history = history + [ChatMessage(role="user", content=message), ChatMessage(role="assistant", content=response)]            return "", history, metadata
         
         msg.submit(chat, [msg, chatbot], [msg, chatbot, metadata_display])
         submit.click(chat, [msg, chatbot], [msg, chatbot, metadata_display])
