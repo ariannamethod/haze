@@ -371,7 +371,7 @@ def create_interface():
 **NO SEED FROM PROMPT** — Haze speaks from its internal field, not your input.
     """
     
-    with gr.Blocks(css=custom_css, title="HAZE + CLOUD") as demo:
+    with gr.Blocks() as demo:
         gr.Markdown(logo)
         
         with gr.Row():
@@ -474,6 +474,8 @@ def main():
         server_port=7860,
         share=False,
         show_error=True,
+        css=custom_css,
+        title="HAZE + CLOUD",
     )
 
 
