@@ -52,6 +52,23 @@ STOP_WORDS = frozenset({
     'just', 'only', 'also', 'very', 'too', 'any', 'some', 'all', 'no',
 })
 
+# Blacklist of mundane/generic phrases that shouldn't dominate gravity centers
+# These are phrases that appear frequently in corpus but don't contribute to identity
+# Format: set of 3-tuples of lowercased words
+MUNDANE_TRIGRAMS = frozenset({
+    # Location phrases - too generic, not identity-defining
+    ('the', 'living', 'room'),
+    ('in', 'the', 'living'),
+    ('to', 'the', 'living'),
+    ('the', 'storage', 'room'),
+    ('in', 'the', 'storage'),
+    ('to', 'the', 'storage'),
+})
+
+# Configuration for gravity center selection
+GRAVITY_CENTER_POOL_SIZE = 100  # Initial pool of top trigrams to filter from
+GRAVITY_CENTER_FINAL_SIZE = 50  # Final number of gravity centers to keep
+
 
 def tokenize_words(text: str) -> List[str]:
     """
@@ -215,8 +232,13 @@ class Subjectivity:
             self.corpus_trigrams.append((words[i], words[i+1], words[i+2]))
         
         # Find most common trigrams as "gravity centers"
+        # Filter out mundane/generic phrases that don't contribute to identity
         trigram_counts = Counter(self.corpus_trigrams)
-        self.identity.gravity_centers = [t for t, _ in trigram_counts.most_common(50)]
+        filtered_trigrams = [
+            t for t, _ in trigram_counts.most_common(GRAVITY_CENTER_POOL_SIZE)
+            if t not in MUNDANE_TRIGRAMS
+        ]
+        self.identity.gravity_centers = filtered_trigrams[:GRAVITY_CENTER_FINAL_SIZE]
     
     def _build_identity_patterns(self) -> None:
         """Build identity patterns from bootstrap text."""

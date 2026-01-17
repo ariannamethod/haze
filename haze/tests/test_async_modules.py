@@ -406,3 +406,26 @@ class TestSubjectivity:
         
         overlap = first_words & prompt_words
         assert len(overlap) == 0, f"FIRST seed element contains prompt words: {overlap}"
+    
+    def test_mundane_trigrams_filtered_from_gravity_centers(self):
+        """Mundane trigrams like 'the living room' are filtered from gravity centers.
+        
+        This tests that generic location phrases don't dominate the internal seeds.
+        The MUNDANE_TRIGRAMS set filters out phrases that appear frequently
+        but don't contribute to Haze's identity/personality.
+        """
+        from haze.subjectivity import Subjectivity, MUNDANE_TRIGRAMS
+        from haze.haze import Vocab
+        
+        # Create a corpus where "the living room" appears many times
+        # to ensure it would be a top trigram if not filtered
+        corpus = ("The living room. " * 20 + 
+                  "Hello world. I love you. Darling sweetheart. " +
+                  "The pattern emerges. Haze resonates. The field responds.")
+        vocab = Vocab.from_text(corpus)
+        subj = Subjectivity(corpus, vocab)
+        
+        # Check that gravity centers don't contain mundane trigrams
+        for center in subj.identity.gravity_centers:
+            assert center not in MUNDANE_TRIGRAMS, \
+                f"Mundane trigram found in gravity centers: {center}"
