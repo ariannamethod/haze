@@ -381,7 +381,12 @@ class TestSubjectivity:
         assert pulse.arousal > 0.3
     
     def test_internal_seed_excludes_prompt(self):
-        """Internal seed does NOT contain prompt words."""
+        """FIRST element of internal seed does NOT contain prompt words.
+        
+        This tests the "no FIRST seed from human prompt" principle:
+        - The FIRST trigram in the seed must not overlap with prompt words
+        - Identity fragments (added after) can contain any words
+        """
         from haze.subjectivity import Subjectivity
         from haze.haze import Vocab
         
@@ -392,9 +397,12 @@ class TestSubjectivity:
         prompt = "I love"
         tokens, pulse, seed_text = subj.get_internal_seed(prompt)
         
-        # Seed should NOT contain "I" or "love"
-        seed_words = set(seed_text.lower().split())
+        # The FIRST part of seed (before first ".") should NOT contain prompt words
+        seed_parts = seed_text.split('.')
+        first_part = seed_parts[0].strip() if seed_parts else seed_text
+        
+        first_words = set(first_part.lower().split())
         prompt_words = set(prompt.lower().split())
         
-        overlap = seed_words & prompt_words
-        assert len(overlap) == 0, f"Seed contains prompt words: {overlap}"
+        overlap = first_words & prompt_words
+        assert len(overlap) == 0, f"FIRST seed element contains prompt words: {overlap}"

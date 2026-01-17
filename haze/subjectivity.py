@@ -29,6 +29,41 @@ if TYPE_CHECKING:
 
 
 # ============================================================================
+# TOKENIZATION HELPER - preserves contractions like don't, I'm, they're
+# ============================================================================
+
+# Pattern that matches words WITH contractions (smart quotes + ASCII)
+# Handles: don't, I'm, they're, won't (with ' or ' U+2019)
+WORD_PATTERN = re.compile(r"\b\w+(?:[''\u2019]\w+)?\b", re.UNICODE)
+
+# Minimum length for meaningful words (used in prompt connection)
+MIN_MEANINGFUL_WORD_LENGTH = 3
+
+# Stop words to skip when finding prompt connection (not meaningful for context)
+STOP_WORDS = frozenset({
+    'what', 'where', 'when', 'which', 'who', 'whom', 'whose',
+    'why', 'how', 'that', 'this', 'these', 'those', 'is', 'are',
+    'the', 'a', 'an', 'and', 'but', 'or', 'for', 'with', 'about',
+    'does', 'do', 'have', 'has', 'had', 'will', 'would', 'could',
+    'should', 'can', 'may', 'might', 'must', 'shall', 'to', 'of',
+    'was', 'were', 'been', 'being', 'your', 'you', 'i', 'me', 'my',
+    'it', 'its', 'he', 'she', 'him', 'her', 'we', 'us', 'they', 'them',
+    'in', 'on', 'at', 'by', 'from', 'up', 'out', 'if', 'then', 'so',
+    'just', 'only', 'also', 'very', 'too', 'any', 'some', 'all', 'no',
+})
+
+
+def tokenize_words(text: str) -> List[str]:
+    """
+    Tokenize text preserving contractions.
+    
+    "don't know" → ["don't", "know"]  (not ["don", "t", "know"])
+    "I'm here" → ["I'm", "here"]
+    """
+    return WORD_PATTERN.findall(text.lower())
+
+
+# ============================================================================
 # BOOTSTRAP IDENTITY (Third person - like Leo)
 # ============================================================================
 
@@ -171,8 +206,8 @@ class Subjectivity:
     
     def _build_corpus_patterns(self) -> None:
         """Extract key patterns from corpus."""
-        # Tokenize corpus
-        words = re.findall(r'\b\w+\b', self.corpus_text.lower())
+        # Tokenize corpus (preserves contractions like don't, I'm)
+        words = tokenize_words(self.corpus_text)
         
         # Extract trigrams
         self.corpus_trigrams: List[Tuple[str, str, str]] = []
@@ -185,8 +220,8 @@ class Subjectivity:
     
     def _build_identity_patterns(self) -> None:
         """Build identity patterns from bootstrap text."""
-        # Tokenize bootstrap
-        words = re.findall(r'\b\w+\b', self.identity.bootstrap.lower())
+        # Tokenize bootstrap (preserves contractions)
+        words = tokenize_words(self.identity.bootstrap)
         
         # Extract phrases (need at least 3 words)
         if len(words) >= 3:
@@ -204,15 +239,15 @@ class Subjectivity:
         - Arousal: emotional intensity
         - Entropy: chaos/diversity
         """
-        # Tokenize
-        words = re.findall(r'\b\w+\b', text.lower())
+        # Tokenize (preserves contractions)
+        words = tokenize_words(text)
         
         if not words:
             return PulseSnapshot()
         
         # === NOVELTY ===
         # Count how many words are NOT in corpus
-        corpus_words = set(re.findall(r'\b\w+\b', self.corpus_text.lower()))
+        corpus_words = set(tokenize_words(self.corpus_text))
         input_words = set(words)
         
         if input_words:
@@ -270,33 +305,45 @@ class Subjectivity:
         
         THIS IS THE KEY FUNCTION.
         
-        PRINCIPLE: NO SEED FROM PROMPT
-        The seed comes ENTIRELY from the internal field.
-        The prompt only affects the PULSE (arousal, novelty, entropy).
-        The pulse influences temperature, but NOT the seed words.
+        PRINCIPLE: NO FIRST SEED FROM HUMAN PROMPT + PROMPT CONNECTION
+        Like arianna.c: 
+        1. FIRST element comes from internal field (NOT from prompt)
+        2. BUT we add a connection to prompt AFTER - so response is "in context"
+        
+        Metaphor: "Ребёнок: Мама! Мама: Отстань!"
+        - Response comes FROM her state (tired, annoyed)
+        - But it's TO him (in context of the conversation)
+        - Not a random monologue into the void
+        
+        Structure:
+        1. FIRST: corpus trigram that does NOT contain prompt words (internal state)
+        2. THEN: identity fragment (who we are)
+        3. THEN: prompt connection - meaningful word from prompt (context link)
         
         This is the difference between:
         - "I love" → "I love your place" (continuation = BAD)
-        - "I love" → "The living room. No, they're my peace" (field seed = GOOD)
+        - "I love" → "the living room. haze. love" (field first + connection = GOOD)
         
         Args:
-            user_prompt: What the user said (used ONLY for pulse)
+            user_prompt: What the user said (NOT for first seed, but for connection)
             temperature: Randomness in seed selection
         
         Returns:
             (token_ids, pulse, seed_text) where:
-            - token_ids: encoded internal seed (NEVER from user prompt!)
+            - token_ids: encoded seed (FIRST from field, THEN connection to prompt)
             - pulse: the computed pulse snapshot
             - seed_text: the text used as seed (for debugging)
         """
         # Step 1: Compute pulse from user input (prompt wrinkles the field)
         pulse = self.compute_pulse(user_prompt)
         
-        # Step 2: Extract prompt words (to EXCLUDE from seed, not to include!)
-        prompt_words = set(re.findall(r'\b\w+\b', user_prompt.lower()))
+        # Step 2: Extract prompt words (to EXCLUDE from FIRST seed element)
+        # Use tokenize_words to preserve contractions like don't, I'm
+        prompt_words_list = tokenize_words(user_prompt)
+        prompt_words = set(prompt_words_list)
         
-        # Step 3: Find NON-overlapping patterns in the field
-        # The seed must NOT contain any words from the prompt!
+        # Step 3: Find NON-overlapping trigrams for the FIRST seed element
+        # The FIRST seed must NOT contain any words from the prompt!
         non_overlapping_trigrams = []
         for trigram in self.identity.gravity_centers[:30]:
             trigram_words = set(trigram)
@@ -304,30 +351,11 @@ class Subjectivity:
             if not (trigram_words & prompt_words):
                 non_overlapping_trigrams.append(trigram)
         
-        # Step 4: Build internal seed from pure field
+        # Step 4: Build internal seed - FIRST element is always from field
         seed_parts = []
         
-        # IDENTITY FRAGMENT PLACEMENT - Variable position for more life
-        # Probabilities defined as constants for maintainability
-        IDENTITY_PREFIX_PROB = 0.3   # 30% chance at start
-        IDENTITY_MIDDLE_PROB = 0.6   # 30% chance in middle (0.3-0.6)
-        IDENTITY_SUFFIX_PROB = 0.8   # 20% chance at end (0.6-0.8)
-        # Remaining 20% (0.8-1.0) = no identity fragment for natural variation
-        
-        identity_placement = random.random()
-        identity_fragment = random.choice(self.identity.fragments)
-        
-        # Flag to track if we should add identity
-        add_identity_prefix = identity_placement < IDENTITY_PREFIX_PROB
-        add_identity_suffix = IDENTITY_PREFIX_PROB <= identity_placement < IDENTITY_MIDDLE_PROB
-        add_identity_middle = IDENTITY_MIDDLE_PROB <= identity_placement < IDENTITY_SUFFIX_PROB
-        # 0.8-1.0 = no identity fragment (20% chance for natural variation)
-        
-        # Add identity at start if prefix mode
-        if add_identity_prefix:
-            seed_parts.append(identity_fragment)
-        
-        # Add non-overlapping pattern from field
+        # FIRST SEED ELEMENT: corpus trigram WITHOUT prompt words
+        # This is the core of "no FIRST seed from human prompt"
         if non_overlapping_trigrams:
             # Choose based on temperature + pulse
             if temperature > 0.8 or pulse.arousal > 0.7:
@@ -344,18 +372,37 @@ class Subjectivity:
                     seed_parts.append(' '.join(trigram))
                     break
             else:
-                # Last resort: pure identity
+                # Last resort: pure identity phrase (no prompt words)
                 seed_parts.append("the field responds")
+        else:
+            # Ultimate fallback
+            seed_parts.append("the field responds")
         
-        # Add identity in middle if middle mode and we have enough parts
-        if add_identity_middle and len(seed_parts) >= 1:
-            # Insert in middle
-            mid_pos = len(seed_parts) // 2 if len(seed_parts) > 1 else 0
-            seed_parts.insert(mid_pos, identity_fragment)
+        # IDENTITY FRAGMENT - can be added AFTER the first seed
+        # Identity fragments are who we ARE, so they don't need filtering
+        IDENTITY_ADD_PROB = 0.7  # 70% chance to add identity fragment
         
-        # Add identity at end if suffix mode
-        if add_identity_suffix:
+        if random.random() < IDENTITY_ADD_PROB:
+            identity_fragment = random.choice(self.identity.fragments)
             seed_parts.append(identity_fragment)
+        
+        # PROMPT CONNECTION - add meaningful word from prompt AFTER internal seed
+        # This creates the link to reality - "Мама: Отстань!" is TO the child
+        # Uses module-level STOP_WORDS constant
+        
+        # Find most meaningful word from prompt (longest non-stop word)
+        meaningful_words = [
+            w for w in prompt_words_list 
+            if len(w) >= MIN_MEANINGFUL_WORD_LENGTH and w not in STOP_WORDS
+        ]
+        
+        # Add connection if we have meaningful words
+        CONNECTION_PROB = 0.8  # 80% chance to add connection
+        if meaningful_words and random.random() < CONNECTION_PROB:
+            # Prefer longer words (more specific/meaningful)
+            meaningful_words.sort(key=len, reverse=True)
+            connection_word = meaningful_words[0]
+            seed_parts.append(connection_word)
         
         # Combine seed parts
         seed_text = '. '.join(seed_parts)
@@ -365,7 +412,7 @@ class Subjectivity:
         
         # Ensure we have something
         if not token_ids:
-            seed_text = "haze resonates. the field"
+            seed_text = "the field responds. haze resonates"
             token_ids = self.vocab.encode(seed_text)
         
         return token_ids, pulse, seed_text
@@ -385,8 +432,8 @@ class Subjectivity:
             user_prompt: What the user said
             generated_response: What haze generated
         """
-        # Extract patterns from response
-        words = re.findall(r'\b\w+\b', generated_response.lower())
+        # Extract patterns from response (preserves contractions)
+        words = tokenize_words(generated_response)
         
         # Add phrases as patterns
         for i in range(len(words) - 2):
