@@ -315,7 +315,29 @@ class Subjectivity:
         # Remaining 20% (0.8-1.0) = no identity fragment for natural variation
         
         identity_placement = random.random()
-        identity_fragment = random.choice(self.identity.fragments)
+        
+        # NO FIRST SEED FROM HUMAN PROMPT - filter identity fragments too!
+        # Like arianna.c: the seed must NOT contain ANY words from the prompt
+        non_overlapping_fragments = []
+        for frag in self.identity.fragments:
+            frag_words = set(re.findall(r'\b\w+\b', frag.lower()))
+            if not (frag_words & prompt_words):
+                non_overlapping_fragments.append(frag)
+        
+        # Choose from filtered fragments, or fallback to least-overlapping
+        if non_overlapping_fragments:
+            identity_fragment = random.choice(non_overlapping_fragments)
+        else:
+            # Fallback: pick fragment with minimum overlap
+            min_overlap = len(prompt_words) + 1
+            best_frag = self.identity.fragments[0] if self.identity.fragments else "the field responds"
+            for frag in self.identity.fragments:
+                frag_words = set(re.findall(r'\b\w+\b', frag.lower()))
+                overlap = len(frag_words & prompt_words)
+                if overlap < min_overlap:
+                    min_overlap = overlap
+                    best_frag = frag
+            identity_fragment = best_frag
         
         # Flag to track if we should add identity
         add_identity_prefix = identity_placement < IDENTITY_PREFIX_PROB
